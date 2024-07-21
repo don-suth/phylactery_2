@@ -8,6 +8,7 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Fieldset, HTML, Div, Field
 
 from library.models import Item, Reservation, BorrowRecord, default_due_date
+from library.controller import library_controller
 from members.models import Member
 
 
@@ -183,7 +184,7 @@ class InternalBorrowerDetailsForm(forms.Form):
 	
 	def clean_member(self):
 		member = self.cleaned_data["member"]
-		if not member.is_valid_member():
+		if not library_controller.member_can_borrow_items(member):
 			raise ValidationError("This member cannot borrow items.")
 		return member
 
