@@ -1,3 +1,4 @@
+from datetime import date
 from library.models import Item, Reservation, BorrowerDetails, BorrowRecord
 from members.models import Member
 
@@ -22,6 +23,12 @@ class LibraryController:
 		return (
 			member.is_valid_member()
 		)
+	
+	def item_max_due_date(self, item: Item) -> date:
+		"""
+		Returns the maximum due date for an Item.
+		"""
+		pass
 
 
 library_controller = LibraryController()
