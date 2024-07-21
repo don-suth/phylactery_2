@@ -1,4 +1,5 @@
 from library.models import Item, Reservation, BorrowerDetails, BorrowRecord
+from members.models import Member
 
 
 class LibraryController:
@@ -10,8 +11,17 @@ class LibraryController:
 		- Notifications for those events
 		- Notifications for overdue items
 	"""
-	
-	
+	def member_can_borrow_items(self, member: Member) -> bool:
+		"""
+		Controls whether a Member can borrow Items.
+		All the following conditions need to be True:
+			- The Member needs to be a valid member
+			- The Member needs to have no Library sanctions on them (from strikes).
+			- TODO: When Library Strikes get implemented, add them in here.
+		"""
+		return (
+			member.is_valid_member()
+		)
 
 
 library_controller = LibraryController()
