@@ -31,4 +31,6 @@ class LibraryController:
 		pass
 
 
-library_controller = LibraryController()
+def get_library_controller() -> LibraryController:
+	return LibraryController()
+
