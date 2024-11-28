@@ -12,9 +12,9 @@ class LibraryController:
 		- Notifications for those events
 		- Notifications for overdue items
 	"""
-	def member_can_borrow_items(self, member: Member) -> bool:
+	def member_has_borrowing_permissions(self, member: Member) -> bool:
 		"""
-		Controls whether a Member can borrow Items.
+		Determines whether a Member can borrow Items.
 		All the following conditions need to be True:
 			- The Member needs to be a valid member
 			- The Member needs to have no Library sanctions on them (from strikes).
