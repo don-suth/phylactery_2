@@ -1,0 +1,58 @@
+{% extends override_base|default:"email/email_base.html" %}
+{% comment %}
+	The base email template is "email_base.html".
+	We override it with "email_base.txt" for the plaintext version of emails.
+{% endcomment %}
+
+{% comment %}
+	Both of these should be the same.
+	One will be in the "head" of the email,
+	and the other will be the main heading of the email.
+{% endcomment %}
+{% block title %}Unigames Library Returned Items Receipt{% endblock %}
+{% block email_title %}Unigames Library Returned Items Receipt{% endblock %}
+
+{% comment %}
+	The preheader is a short description of the contents of the email,
+	displayed as a summary in some email programs. 
+{% endcomment %}
+{% block preheader %}Hi there {{ borrower_name }}, here's your receipt for the items you returned today.{% endblock %}
+
+{% comment %}
+	The main content of the email.
+	The very first element of this will the "email_title" above.
+{% endcomment %}
+{% block content %}
+	<p>
+		Hi there {{ borrower_name }},
+	</p>
+	<p>
+		Thanks for returning the items you borrowed! Here's your receipt.
+	</p>
+	<p>
+		You returned the following items:
+	</p>
+	<ul>
+    {% for item in items %}
+        <li>{{ item }}</li>
+    {% endfor %}
+	</ul>
+	<p>
+		This return was authorised by {{ gatekeeper }} on {{ today|date:"jS F Y" }}.
+	</p>
+	<p>
+		Thanks for taking care of these items. We hope you enjoyed them!
+	</p>
+	<p>
+		Regards, <br />
+		Unigames
+	</p>
+{% endblock %}
+
+{% comment %}
+	Used to override the footer at the bottom of the email.
+{% endcomment %}
+{% block unsubscribe_footer %}
+	This emailed borrowing receipt can't be disabled, but you can <br /> 
+	manage your other email preferences <a href="{{ protocol }}{{ domain }}{% url "members:my_email_prefs" %}">here</a>.
+{% endblock %}

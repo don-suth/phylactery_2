@@ -7,6 +7,7 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Field
 from crispy_forms.bootstrap import Accordion, AccordionGroup
 from members.models import Member, Rank, RankChoices, Membership
+from phylactery.form_fields import HTML5DateInput
 
 
 def expire_active_ranks(rank_to_expire, rank_to_exclude):
@@ -168,11 +169,7 @@ class ExpireMembershipsForm(ControlPanelForm):
 	cut_off_date = forms.DateField(
 		label="Invalidate memberships purchased before:",
 		required=True,
-		widget=forms.DateInput(
-			attrs={
-				"type": "date"
-			}
-		),
+		widget=HTML5DateInput(),
 		initial=datetime.date.today().strftime("%Y-01-01"),
 	)
 	

@@ -1,0 +1,59 @@
+{% extends override_base|default:"email/email_base.html" %}
+{% comment %}
+	The base email template is "email_base.html".
+	We override it with "email_base.txt" for the plaintext version of emails.
+{% endcomment %}
+
+{% comment %}
+	Both of these should be the same.
+	One will be in the "head" of the email,
+	and the other will be the main heading of the email.
+{% endcomment %}
+{% block title %}Reminder - Library Items Due Today{% endblock %}
+{% block email_title %}Reminder - Library Items Due Today{% endblock %}
+
+{% comment %}
+	The preheader is a short description of the contents of the email,
+	displayed as a summary in some email programs. 
+{% endcomment %}
+{% block preheader %}Hi there {{ member.short_name }}, you have library items due today.{% endblock %}
+
+{% comment %}
+	The main content of the email.
+	The very first element of this will the "email_title" above.
+{% endcomment %}
+{% block content %}
+	<p>
+		Hi there {{ member.short_name }},
+	</p>
+	<p>
+		This is an automated email to remind you that the following items that
+		you have borrowed are due back today, {{ due_date|date:"l jS F" }}:
+	</p>
+	<ul>
+    {% for record in record_list %}
+        <li>{{ record.item.name }}</li>
+    {% endfor %}
+	</ul>
+	<p>
+		Please note, failure to return these items today may result in
+		library strikes being added to your account.
+	</p>
+	<p>
+		If circumstances mean you are unable to return some or all of
+		these items on time, please contact the Librarian as soon as possible.
+	</p>
+	<p>
+		Regards, <br />
+		Unigames
+	</p>
+
+{% endblock %}
+
+{% comment %}
+	Used to override the footer at the bottom of the email.
+{% endcomment %}
+{% block unsubscribe_footer %}
+	These reminder emails cannot be disabled, but you can <br />
+	manage your other email preferences <a href="{{ protocol }}{{ domain }}{% url "members:my_email_prefs" %}">here</a>.
+{% endblock %}

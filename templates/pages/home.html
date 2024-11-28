@@ -1,11 +1,112 @@
 {% extends '_base.html' %}
 {% load static %}
 
-{% block title %}Home page{% endblock title %}
+{% block title %}Home{% endblock title %}
 
 {% block content %}
-<div class="pricing-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
-  <img src="{% static 'images/logo.png' %}" class="img-fluid" alt="DjangoX logo"/>
-  <p class="lead">A Django starter project with batteries.</p>
-</div>
+	<div class="row g-2">
+		<div class="col-12">
+			<div class="card text-center">
+				<div class="card-body bg-body-secondary">
+					<div class="row">
+						<div class="col-xs-12 col-sm-2 col-md-3 col-lg-3 col-xl-4"></div>
+						<div class="col-xs-12 col-sm-8 col-md-6 col-lg-6 col-xl-4">
+							<img src="{% static "images/logos/current/straight.png" %}" class="img-fluid unigames-big-logo">
+							<span class="unigames-big-brand">Unigames</span>
+						</div>
+						<div class="col-xs-12 col-sm-2 col-md-3 col-lg-3 col-xl-4"></div>
+					</div>
+					<h3 class="card-title">UWA's traditional gaming club</h3>
+				</div>
+				<div class="card-footer">
+					<div class="row g-1">
+						<div class="col-12 col-lg-6">
+							<a href="{% url "contact" %}" class="btn btn-discord">Join our Discord <i class="bi-discord"></i></a>
+						</div>
+						<div class="col-12 col-lg-6">
+							<a href="{% url "about" %}" class="btn btn-secondary">About Us / Find Us / Join Us <i class="bi-arrow-right"></i></a>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="col-12 col-lg-6">
+			<div class="card h-100">
+				<div class="card-header d-flex justify-content-between">
+					<h4 class="mb-0">Latest posts:</h4>
+					<a href="{% url "blog:all_posts" %}" class="btn btn-outline-contrast btn-sm">All News</a>
+				</div>
+				<div class="list-group list-group-flush">
+					{% for blogpost in recent_blogposts %}
+						<a href="{{ blogpost.get_absolute_url }}" class="list-group-item list-group-item-action">
+							<div class="d-flex w-100 justify-content-between">
+								<h5 class="mb-1">{{ blogpost.title }}</h5>
+							</div>
+							<p class="mb-1">{{ blogpost.short_description }}</p>
+							<div class="d-flex w-100 justify-content-between">
+								<small>{{ blogpost.author }}</small>
+								<small>{{ blogpost.get_pretty_timestamp }}</small>
+							</div>
+						</a>
+					{% endfor %}
+				</div>
+			</div>
+		</div>
+		<div class="col-12 col-lg-6">
+			<div class="card h-100">
+				<div class="card-header d-flex justify-content-between">
+					<h4 class="mb-0">Featured Library Items:</h4>
+					<div>
+						<a href="{% url "library:item_list" %}" class="btn btn-outline-contrast btn-sm m-0">All Items</a>
+					</div>
+				</div>
+				<div id="featuredItems" class="carousel slide h-100" data-bs-ride="carousel">
+					<div class="carousel-indicators" style="bottom: -20px;">
+						{% for featured_item in featured_items %}
+							<button type="button"
+									data-bs-target="#featuredItems"
+									data-bs-slide-to="{{ forloop.counter0 }}"
+									{% if forloop.first %}
+										class="active"
+										aria-current="true"
+									{% endif %}>
+							</button>
+						{% endfor %}
+					</div>
+					<div class="carousel-inner">
+						{% for featured_item in featured_items %}
+							<div class="carousel-item {% if forloop.first %}active{% endif %}">
+								<div class="card text-center border-0">
+									<div class="card-body p-2"></div>
+									<div class="d-flex align-items-center" style="min-height: 220px;">
+										<img src="{{ featured_item.image.url }}"
+											class="card-img list-card-image mx-auto"
+											style="object-position: center;"
+											alt="{{ featured_item.name }}">
+									</div>
+									<div class="card-body p-2"></div>
+									<div class="card-footer pb-3" style="">
+										<h5 class="card-title">
+											<a class="stretched-link link-underline link-underline-opacity-0 link-underline-opacity-100-hover" href="{% url 'library:item_detail' featured_item.slug %}">
+												{{ featured_item.name }}
+											</a>
+										</h5>
+										<p class="card-text text-muted">{{ featured_item.get_type_display }}</p>
+									</div>
+								</div>
+							</div>
+						{% endfor %}
+					</div>
+					<button class="carousel-control-prev" type="button" data-bs-target="#featuredItems" data-bs-slide="prev">
+						<span class="carousel-control-prev-icon" aria-hidden="true"></span>
+						<span class="visually-hidden">Previous</span>
+					</button>
+					<button class="carousel-control-next" type="button" data-bs-target="#featuredItems" data-bs-slide="next">
+						<span class="carousel-control-next-icon" aria-hidden="true"></span>
+						<span class="visually-hidden">Next</span>
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
 {% endblock content %}

@@ -1,0 +1,53 @@
+{% extends override_base|default:"email/email_base.html" %}
+{% comment %}
+	The base email template is "email_base.html".
+	We override it with "email_base.txt" for the plaintext version of emails.
+{% endcomment %}
+
+{% comment %}
+	Both of these should be the same.
+	One will be in the "head" of the email,
+	and the other will be the main heading of the email.
+{% endcomment %}
+{% block title %}Unknown Email Address{% endblock %}
+{% block email_title %}Unknown Email Address{% endblock %}
+
+{% comment %}
+	The preheader is a short description of the contents of the email,
+	displayed as a summary in some email programs. 
+{% endcomment %}
+{% block preheader %}Unknown Email Address{% endblock %}
+
+{% comment %}
+	The main content of the email.
+	The very first element of this will the "email_title" above.
+{% endcomment %}
+{% block content %}
+	<p>
+		Hello from Unigames!
+	</p>
+	<p>
+		You are receiving this email because you, or someone else, tried to access an account on the Unigames website 
+		with email {{ email }}. However, we do not have any record of such an account in our database.
+	</p>
+	<p>
+		The email address associated with your account should be the one you 
+		used when you purchased your Unigames membership.
+	</p>
+	<p>
+		If you guessed it was this email, you guessed wrong. Sorry!
+	</p>
+	<p>
+		If you cannot figure out which email you used to sign up, please contact Committee.
+	</p>
+	<p>
+		Regards, <br/>
+		Unigames
+	</p>
+{% endblock %}
+
+{% comment %}
+	Used to override the footer at the bottom of the email.
+{% endcomment %}
+{% block unsubscribe_footer %}
+{% endblock %}

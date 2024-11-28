@@ -1,0 +1,112 @@
+{% extends "_base.html" %}
+{% load static %}
+
+{% block title %}Our Library{% endblock %}
+
+{% block content %}
+	<div class="row gy-2 text-center">
+		<div class="col-12">
+			<div class="card w-100" style="">
+				<div class="row g-0">
+					<div class="d-none d-md-block col-md-4 rounded-start" style="background-size: cover; background-position: top; background-image: url('{% static "images/unigames_library.jpg" %}')">
+					</div>
+					<div class="col-12 col-md-8">
+						<div class="card-body">
+							<h5 class="card-title">The Unigames Library</h5>
+							<p class="card-text">
+								The pride and joy of Unigames, and also its greatest asset, the library contains our vast collection
+								of board games, card games, RPG source books, and wargaming terrain.
+							</p>
+							<p class="card-text">
+								<a href="{% url "library:item_list" %}" class="btn btn-primary">Browse our Library <i class="bi-arrow-right"></i></a>
+								<a href="{% url "library:tag_list" %}" class="btn btn-primary">Search by Tags <i class="bi-arrow-right"></i></a>
+							</p>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="col-12">
+			<div class="card w-100" style="">
+				<div class="row g-0">
+					<div class="col-12 col-md-8">
+						<div class="card-body">
+							<h5 class="card-title">Both in the clubroom, and at home</h5>
+							<p class="card-text">
+								All of our library items can be played, read, and used while in the clubroom, and members can also
+								borrow the vast majority of items for use at events or their own RPG groups!
+							</p>
+							<p class="card-text">
+								If you are a member and wish to borrow an item, swing by the clubroom when it's open and ask one of our
+								friendly gatekeepers!
+							</p>
+						</div>
+					</div>
+					<div class="d-none d-md-block col-md-4 rounded-end" style="background-size: cover; background-position: top; background-image: url('{% static "images/unigame_members.jpg" %}')"></div>
+				</div>
+			</div>
+		</div>
+		<div class="col-12">
+			<div class="card w-100" style="">
+				<div class="row g-0">
+					<div class="d-none d-md-block col-md-4 rounded-start" style="background-size: cover; background-position: bottom; background-image: url('{% static "images/unigames_library_wide.jpg" %}')">
+					</div>
+					<div class="col-12 col-md-8">
+						<div class="card-body">
+							<h5 class="card-title">Our collection is vast and extensive</h5>
+							<p class="card-text">
+								Unigames currently has:
+							</p>
+						</div>
+						<div class="row px-2 pb-2 gx-2 ">
+							<div class="col-6">
+								<a href="{% url "library:search" %}?q=is:book" class="btn btn-outline-contrast w-100">{{ book_count }} Books <i class="bi-arrow-right"></i></a>
+							</div>
+							<div class="col-6">
+								<a href="{% url "library:search" %}?q=is:boardgame" class="btn btn-outline-contrast w-100">{{ board_game_count }} Board Games <i class="bi-arrow-right"></i></a>
+							</div>
+						</div>
+						<div class="row px-2 gx-2">
+							<div class="col-6">
+								<a href="{% url "library:search" %}?q=is:cardgame" class="btn btn-outline-contrast w-100">{{ card_game_count }} Card Games <i class="bi-arrow-right"></i></a>
+							</div>
+							<div class="col-6">
+								<a href="{% url "library:search" %}?q=is:other" class="btn btn-outline-contrast w-100">{{ other_count }} other items <i class="bi-arrow-right"></i></a>
+							</div>
+						</div>
+						<div class="card-body">
+							<p class="card-text">
+								and counting!
+							</p>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="col-12">
+			<div class="card w-100" style="">
+				<div class="row g-0">
+					<div class="col-12 col-md-8">
+						<div class="card-body">
+							<h5 class="card-title">Need some games for an event?</h5>
+							<p class="card-text">
+								Unigames also allows other clubs, organisations and people to reserve and borrow items for their events.
+								Whether you need one board game or several, Unigames is here to help!
+							</p>
+							<p class="card-text">
+								Submit a request form with at least 2-3 weeks notice, and we'll get back to you!
+							</p>
+							{% if user.is_authenticated %}
+								<a href="{% url "library:reservation_internal" %}" class="btn btn-primary">Reservation Request Form <i class="bi-arrow-right"></i></a>
+							{% else %}
+								<a href="{% url "library:reservation_external" %}" class="btn btn-primary">Reservation Request Form <i class="bi-arrow-right"></i></a>
+							{% endif %}
+						</div>
+					</div>
+					<div class="d-none d-md-block col-md-4" style="background-size: cover; background-position: top; background-image: url('{% static "images/unigames_games.jpg" %}')"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+{% endblock %}

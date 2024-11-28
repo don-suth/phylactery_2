@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.db import models
 from django.forms.widgets import Textarea
-from .models import MailingList, BlogPost
+from .models import MailingList, BlogPost, EmailOrder
 
 
 class MarkdownWidget(Textarea):
@@ -13,8 +13,15 @@ class MarkdownWidget(Textarea):
 		super().__init__(attrs={"style": "width: 100%; font-family: monospace, monospace;"})
 
 
+class EmailOrderAdmin(admin.TabularInline):
+	model = EmailOrder
+	extra = 0
+	autocomplete_fields = ["mailing_lists"]
+
+
 class BlogPostAdmin(admin.ModelAdmin):
 	model = BlogPost
+	inlines = [EmailOrderAdmin]
 	
 	# Set the slug field to generate automatically from the title.
 	prepopulated_fields = {"slug_title": ("title",)}
@@ -28,6 +35,7 @@ class BlogPostAdmin(admin.ModelAdmin):
 class MailingListAdmin(admin.ModelAdmin):
 	model = MailingList
 	exclude = ["members"]
+	search_fields = ["name"]
 
 
 admin.site.register(MailingList, MailingListAdmin)

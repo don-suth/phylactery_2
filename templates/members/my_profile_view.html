@@ -15,9 +15,12 @@
 						<div class="card-body">
 							<h4 class="card-title">Library Items</h4>
 							<p class="card-text">You have {{ active_records.count }} item{{ active_records.count|pluralize }} borrowed currently.</p>
+							{% if not active_records.exists %}
+								<a href="{% url "library:reservation_internal" %}" class="btn btn-secondary">Reserve Items <i class="bi-arrow-right"></i></a>
+							{% endif %}
 						</div>
 						{% if active_records.exists %}
-							<table class="table">
+							<table class="table mb-0">
 								<thead>
 									<tr>
 										<th scope="col">Item Name</th>
@@ -37,6 +40,9 @@
 									{% endfor %}
 								</tbody>
 							</table>
+							<div class="card-body">
+								<a href="{% url "library:reservation_internal" %}" class="btn btn-secondary">Reserve Items <i class="bi-arrow-right"></i></a>
+							</div>
 						{% endif %}
 					{% endwith %}
 				</div>
@@ -57,7 +63,7 @@
 						{% endif %}
 					</div>
 					{% if member.memberships.exists %}
-					<table class="table">
+					<table class="table mb-0">
 						<thead>
 							<tr>
 								<th scope="col">Date paid</th>
@@ -77,18 +83,18 @@
 										<td>${{ membership.amount_paid }}</td>
 									</tr>
 							{% endfor %}
-							{% if member.memberships.count > 2 %}
-								<tr>
-									<td colspan="3" class="text-center">
-										{% with remaining=member.memberships.count|add:"-2" %}
-											{{ remaining }} previous membership{{ remaining|pluralize }} not shown
-										{% endwith %}
-									</td>
-								</tr>
-							{% endif %}
 						</tbody>
 					</table>
 					{% endif %}
+					<div class="card-body p-2 text-center">
+						{% if member.memberships.count > 2 %}
+							{% with remaining=member.memberships.count|add:"-2" %}
+								<p class="card-text">{{ remaining }} previous membership{{ remaining|pluralize }} not shown</p>
+							{% endwith %}
+						{% else %}
+							<p class="card-text">All memberships shown</p>
+						{% endif %}
+					</div>
 				</div>
 			</div>
 			<div class="col mb-3">
@@ -112,7 +118,7 @@
 						<h4 class="card-title">Email</h4>
 						<a class="btn btn-secondary mb-1" href="{% url "account_email" %}">Change your email address <i class="bi-arrow-right"></i></a>
 						<br>
-						<a class="btn btn-secondary" href="#">Manage your email preferences <i class="bi-arrow-right"></i></a>
+						<a class="btn btn-secondary" href="{% url "members:my_email_prefs" %}">Manage your email preferences <i class="bi-arrow-right"></i></a>
 					</div>
 				</div>
 			</div>

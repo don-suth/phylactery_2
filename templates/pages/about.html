@@ -1,6 +1,7 @@
 {% extends '_base.html' %}
+{% load static %}
 
-{% block title %}About page{% endblock %}
+{% block title %}About Us{% endblock %}
 
 {% block content %}
 	<h1>Unigames</h1>
@@ -42,7 +43,18 @@
 			TODO: Update popular board games
 		{% endcomment %}
 	</p>
-
+	<h2>How do I join Unigames?</h2>
+	<p>
+		If you wish to join Unigames, it's easy! Just head on down to the clubroom whenever it is open, 
+		say <mark>"I would like to join Unigames please!"</mark>, and the Gatekeeper in the room will sign you up!
+	</p>
+	<p>
+		The Unigames membership fee is $5 if you are a UWA Student Guild Member, or $7 otherwise. We only accept cash.
+		This membership fee goes entirely towards the running of the club and buying more games for members to play.
+	</p>
+	<p>
+		Joining Unigames can only be done in person at the Unigames clubroom. If you don't know where the clubroom is, read on!
+	</p>
 	<h2>Where is the Unigames clubroom?</h2>
 	<p>
 		For a start, Unigames is located above the UWA (35 Stirling Hwy, Crawley) Tavern. If you don't know where that
@@ -65,6 +77,11 @@
 		doors to your right, and keep walking. Enter the first corridor on your right, and Unigames will be the club
 		directly in front of you.
 	</p>
+	
+	<figure class="figure">
+		<img src="{% static "images/CH_map_2024.png" %}" class="figure-img img-fluid rounded" alt="A map of the upper level of Cameron Hall, showing the location of Unigames">
+		<figcaption class="figure-caption text-center">A map of the upper level of Cameron Hall!</figcaption>
+	</figure>
 
 	<h2>When is Unigames open?</h2>
 	<p>

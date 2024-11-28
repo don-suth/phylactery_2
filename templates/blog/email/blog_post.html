@@ -1,0 +1,45 @@
+{% extends override_base|default:"email/email_base.html" %}
+{% comment %}
+	The base email template is "email_base.html".
+	We override it with "email_base.txt" for the plaintext version of emails.
+{% endcomment %}
+
+{% comment %}
+	Both of these should be the same.
+	One will be in the "head" of the email,
+	and the other will be the main heading of the email.
+{% endcomment %}
+{% block title %}{{ blogpost.title }}{% endblock %}
+{% block email_title %}{{ blogpost.title }}{% endblock %}
+
+{% load markdown_extras %}
+
+{% comment %}
+	The preheader is a short description of the contents of the email,
+	displayed as a summary in some email programs.
+{% endcomment %}
+{% block preheader %}Unigames News - {{ blogpost.title }}{% endblock %}
+
+{% comment %}
+	The main content of the email.
+	The very first element of this will the "email_title" above.
+{% endcomment %}
+{% block content %}
+	<a href="{{ protocol }}{{ domain }}{{ blogpost.get_absolute_url }}">View this email in your browser</a>
+	<hr>
+	{{ blogpost.body|render_markdown }}
+	<hr>
+	<a href="{{ protocol }}{{ domain }}{{ blogpost.get_absolute_url }}">View this email in your browser</a>
+	<p>
+		Regards, <br />
+		Unigames
+	</p>
+{% endblock %}
+
+{% comment %}
+	Used to override the footer at the bottom of the email.
+{% endcomment %}
+{% block unsubscribe_footer %}
+	{{ reason|linebreaksbr }}<br />
+	Manage your email preferences <a href="{{ protocol }}{{ domain }}{% url "members:my_email_prefs" %}">here</a>.
+{% endblock %}

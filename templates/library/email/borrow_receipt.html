@@ -1,0 +1,63 @@
+{% extends override_base|default:"email/email_base.html" %}
+{% comment %}
+	The base email template is "email_base.html".
+	We override it with "email_base.txt" for the plaintext version of emails.
+{% endcomment %}
+
+{% comment %}
+	Both of these should be the same.
+	One will be in the "head" of the email,
+	and the other will be the main heading of the email.
+{% endcomment %}
+{% block title %}Unigames Library Borrowing Receipt{% endblock %}
+{% block email_title %}Unigames Library Borrowing Receipt{% endblock %}
+
+{% comment %}
+	The preheader is a short description of the contents of the email,
+	displayed as a summary in some email programs. 
+{% endcomment %}
+{% block preheader %}Hi there {{ borrower_name }}, here's your receipt for the items you borrowed today.{% endblock %}
+
+{% comment %}
+	The main content of the email.
+	The very first element of this will the "email_title" above.
+{% endcomment %}
+{% block content %}
+	<p>
+		Hi there {{ borrower_name }},
+	</p>
+	<p>
+		Here's your receipt for the items you borrowed at Unigames today.
+	</p>
+	<p>
+		You borrowed the following items:
+	</p>
+	<ul>
+    {% for item, due_date in items %}
+        <li>{{ item }} (due back {{ due_date|date:"l jS F Y" }})</li>
+    {% endfor %}
+	</ul>
+	<p>
+		This borrowing was authorised by {{ gatekeeper }} on {{ today|date:"jS F Y" }}.
+	</p>
+	<p>
+		Please take note of the due date of each of these items, as they may be different,
+    	and remember to return them on or before the due date.
+	</p>
+	<p>
+		If circumstances mean you are unable to return some or all of
+		these items on time, please contact the Librarian as soon as possible.
+	</p>
+	<p>
+		Regards, <br />
+		Unigames
+	</p>
+{% endblock %}
+
+{% comment %}
+	Used to override the footer at the bottom of the email.
+{% endcomment %}
+{% block unsubscribe_footer %}
+	This emailed borrowing receipt can't be disabled, but you can <br /> 
+	manage your other email preferences <a href="{{ protocol }}{{ domain }}{% url "members:my_email_prefs" %}">here</a>.
+{% endblock %}

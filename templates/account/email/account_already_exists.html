@@ -1,0 +1,74 @@
+{% extends override_base|default:"email/email_base.html" %}
+{% comment %}
+	The base email template is "email_base.html".
+	We override it with "email_base.txt" for the plaintext version of emails.
+{% endcomment %}
+
+
+{% comment %}
+	Both of these should be the same.
+	One will be in the "head" of the email,
+	and the other will be the main heading of the email.
+{% endcomment %}
+{% block title %}Account Already Exists{% endblock %}
+{% block email_title %}Account Already Exists{% endblock %}
+
+{% comment %}
+	The preheader is a short description of the contents of the email,
+	displayed as a summary in some email programs. 
+{% endcomment %}
+{% block preheader %}That Account Already Exists{% endblock %}
+
+{% comment %}
+	The main content of the email.
+	The very first element of this will the "email_title" above.
+{% endcomment %}
+{% block content %}
+	<p>
+		Hello from Unigames!
+	</p>
+	<p>
+		You are receiving this email because you or someone else tried to signup for an
+		account using email address:
+	</p>
+	<p>
+		<b>{{ email }}</b>
+	</p>
+	<p>
+		However, an account using that email address already exists.  In case you have
+		forgotten about this, please use the "Forgot Password" procedure to recover
+		your account:
+	</p>
+	<table role="presentation" border="0" cellpadding="0" cellspacing="0" class="btn btn-primary">
+		<tbody>
+			<tr>
+				<td align="left">
+					<table role="presentation" border="0" cellpadding="0" cellspacing="0">
+						<tbody>
+							<tr>
+								<td>
+									<a href="{{ password_reset_url }}" target="_blank">
+										Confirm Email
+									</a>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+	<p>
+		If you think this is incorrect, or are concerned, please contact Unigames Committee.
+	</p>
+	<p>
+		Regards, <br/>
+		Unigames
+	</p>
+{% endblock %}
+
+{% comment %}
+	Used to override the footer at the bottom of the email.
+{% endcomment %}
+{% block unsubscribe_footer %}
+{% endblock %}

@@ -11,6 +11,7 @@ from django.utils.decorators import method_decorator
 from datetime import timedelta
 from library.models import Item, LibraryTag, BorrowerDetails, Reservation, ReservationStatus, BorrowRecord
 from library.forms import ExternalReservationRequestForm, InternalReservationRequestForm, ReservationModelForm, ReturnItemFormset, VerifyReturnFormset
+from library.search import SearchQueryManager
 from members.decorators import gatekeeper_required, committee_required
 
 
@@ -91,7 +92,49 @@ class ItemListView(ListView):
 	template_name = "library/item_list_view.html"
 	context_object_name = "items_list"
 	paginate_by = 24
+
+
+class ItemSearchView(ListView):
+	"""
+	Identical to the ItemListView above,
+	except we also handle simple searches.
+	"""
+	model = Item
+	template_name = "library/item_search_view.html"
+	context_object_name = "items_list"
+	paginate_by = 24
 	
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
+		self.query = None
+		self.manager = None
+	
+	def setup(self, request, *args, **kwargs):
+		super().setup(request, *args, **kwargs)
+		self.query = self.request.GET.get("q", "")
+		if self.query:
+			self.manager = SearchQueryManager(query=self.query)
+			self.manager.evaluate()
+	
+	def get_queryset(self):
+		if self.manager:
+			return self.manager.get_results()
+		else:
+			return Item.objects.none()
+	
+	def get_context_data(self, *args, **kwargs):
+		context = super().get_context_data(*args, **kwargs)
+		if self.manager:
+			context["search_warnings"] = self.manager.warnings
+			context["search_errors"] = self.manager.errors
+		if self.query:
+			context["query"] = self.query
+		return context
+
+
+class SearchSyntaxView(TemplateView):
+	template_name = "library/search_syntax.html"
+
 
 class TagListView(ListView):
 	model = LibraryTag
@@ -124,7 +167,7 @@ class TagDetailView(ListView):
 
 	def get_context_data(self, *args, **kwargs):
 		context = super().get_context_data(*args, **kwargs)
-		context["page_title"] = f"All items tagged with '{self.tag}':"
+		context["page_title"] = f"All items tagged with '{self.tag}'"
 		context["parent_tags"] = self.tag.parents.exclude(name__startswith="Item: ")
 		context["child_tags"] = self.tag.children.exclude(name__startswith="Item: ")
 		return context
@@ -295,10 +338,10 @@ class ReturnItemsView(FormView):
 			messages.success(self.request, f"Successfully returned {returned} items.")
 			# TODO: Send email receipt to borrower that items have been returned.
 			# TODO: Send notification to the Librarian that items have been returned.
-			if self.borrower_details.reservation is not None:
-				if self.borrower_details in BorrowerDetails.objects.filter(completed=True):
+			if self.borrower_details in BorrowerDetails.objects.filter(completed=True):
+				for reservation in Reservation.objects.filter(borrower=self.borrower_details):
 					# This borrow record is now completed. We can update the reservation to be completed as well.
-					self.borrower_details.reservation.set_completed()
+					reservation.set_completed()
 		return redirect("library:dashboard")
 		
 
@@ -344,11 +387,17 @@ class LibraryHomeView(TemplateView):
 	"""
 	Renders the Home page for the library.
 	Different from the Dashboard view.
-	TODO: Replace template
 	"""
 	
-	template_name = "coming_soon.html"
-
+	template_name = "library/library_home.html"
+	
+	def get_context_data(self, **kwargs):
+		context = super().get_context_data(**kwargs)
+		context["book_count"] = Item.objects.filter(base_tags__name__in=["Item Type: Book"]).count()
+		context["board_game_count"] = Item.objects.filter(base_tags__name__in=["Item Type: Board Game"]).count()
+		context["card_game_count"] = Item.objects.filter(base_tags__name__in=["Item Type: Card Game"]).count()
+		context["other_count"] = Item.objects.filter(base_tags__name__in=["Item Type: Other"]).count()
+		return context
 
 @method_decorator(gatekeeper_required, name="dispatch")
 class ReservationBorrowRedirectView(DetailView):

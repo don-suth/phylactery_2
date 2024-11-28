@@ -26,6 +26,7 @@ INSTALLED_APPS = [
 	"django.contrib.contenttypes",
 	"django.contrib.sessions",
 	"django.contrib.messages",
+	"django.contrib.postgres",
 	"whitenoise.runserver_nostatic",
 	"django.contrib.staticfiles",
 	"django.contrib.sites",
@@ -39,6 +40,7 @@ INSTALLED_APPS = [
 	"debug_toolbar",
 	"formtools",
 	"django_extensions",
+	"django_celery_beat",
 	# Local
 	"accounts",
 	"pages",
@@ -89,22 +91,14 @@ TEMPLATES = [
 # https://docs.djangoproject.com/en/dev/ref/settings/#databases
 DATABASES = {
 	"default": {
-		"ENGINE": "django.db.backends.sqlite3",
-		"NAME": BASE_DIR / "db.sqlite3",
+		"ENGINE": "django.db.backends.postgresql",
+		"NAME": "phylactery",
+		"USER": "djangouser2",
+		"PASSWORD": "djangoiscool",
+		"HOST": "127.0.0.1",  # set in docker-compose.yml
+		"PORT": 5432,  # default postgres port
 	}
 }
-
-# For Docker/PostgreSQL usage uncomment this and comment the DATABASES config above
-# DATABASES = {
-#     "default": {
-#         "ENGINE": "django.db.backends.postgresql",
-#         "NAME": "postgres",
-#         "USER": "postgres",
-#         "PASSWORD": "postgres",
-#         "HOST": "db",  # set in docker-compose.yml
-#         "PORT": 5432,  # default postgres port
-#     }
-# }
 
 # https://docs.djangoproject.com/en/dev/ref/settings/#auth-password-validators
 AUTH_PASSWORD_VALIDATORS = [
@@ -213,16 +207,6 @@ ACCOUNT_USER_DISPLAY = str
 ACCOUNT_ADAPTER = "accounts.adapters.CustomRegularAccountAdapter"
 SOCIALACCOUNT_ADAPTER = "accounts.adapters.CustomSocialAccountAdapter"
 
-SOCIALACCOUNT_PROVIDERS = {
-	"discord": {
-		"APPS": [
-			{
-				"client_id": "934080121881649233",
-				"secret": env.str("DISCORD_SECRET"),
-			}
-		]
-	}
-}
 
 ACCOUNT_FORMS = {
 	"add_email": "accounts.forms.UnigamesEmailChangeForm"
@@ -231,3 +215,15 @@ ACCOUNT_FORMS = {
 SOCIALACCOUNT_FORMS = {
 	"disconnect": "accounts.forms.UnigamesDisconnectForm"
 }
+
+CELERY_BROKER_URL = 'redis://localhost:6379'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379'
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'Australia/Perth'
+
+REDIS_HOST = "localhost"
+
+# Import settings from Docker
+from .settings_override import *

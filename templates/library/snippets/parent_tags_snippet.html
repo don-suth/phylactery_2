@@ -1,7 +1,7 @@
 <h5>Immediate parents:</h5>
 <p style="line-height: 2.8">
 	{% for tag in parent_tags %}
-		<a href="{% url 'library:tag_detail' tag.slug %}" role="button" class="btn btn-outline-dark mr-1">
+		<a href="{% url 'library:tag_detail' tag.slug %}" role="button" class="btn active mr-1">
 			{{ tag }}
 		</a>
 	{% endfor %}

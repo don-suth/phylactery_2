@@ -1,27 +1,19 @@
-# Pull base image
-FROM python:3.11-slim-buster
+# Base Image
+FROM tiangolo/uwsgi-nginx:python3.11
 
-# Set environment variables
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
+# Install requirements
+COPY ./requirements.txt .
+RUN pip install --no-cache-dir --upgrade pip
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Create and set work directory called `app`
-RUN mkdir -p /code
-WORKDIR /code
+# Install utility for Docker Secrets
+RUN pip install --no-cache-dir --upgrade get_docker_secret
 
-# Install dependencies
-COPY requirements.txt /tmp/requirements.txt
+# Install utility for monitoring server perfomance
+RUN pip install --no-cache-dir --upgrade uwsgitop
 
-RUN set -ex && \
-    pip install --upgrade pip && \
-    pip install -r /tmp/requirements.txt && \
-    rm -rf /root/.cache/
+# Copy App
+COPY . .
 
-# Copy local project
-COPY . /code/
-
-# Expose port 8000
-EXPOSE 8000
-
-# Use gunicorn on port 8000
-CMD ["gunicorn", "--bind", ":8000", "--workers", "2", "phylactery.wsgi"]
+# Replace entrypoint
+COPY entrypoint.sh /entrypoint.sh

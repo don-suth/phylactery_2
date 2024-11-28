@@ -3,6 +3,8 @@
 {% load crispy_forms_filters %}
 {% load static %}
 
+{% block title %}Borrow Items | {{ wizard.steps.step1 }}/{{ wizard.steps.count }}{% endblock %}
+
 {% block content %}
 	<div class="d-flex justify-content-between mb-3">
 		<span>Step {{ wizard.steps.step1 }} of {{ wizard.steps.count }}</span>

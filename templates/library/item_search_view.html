@@ -1,0 +1,81 @@
+{% extends "_base.html" %}
+
+{% block title %}{{ page_title|default:"All Items" }}{% endblock %}
+
+{% block content %}
+	<h6><span class="badge text-bg-warning rounded-pill">BETA</span> Library Search:</h6>
+	<form action="{% url "library:search" %}" method="get">
+		<div class="input-group mb-2">
+			<input class="form-control form-control-lg"
+				   type="text"
+				   placeholder="Search our Library!"
+				   id="searchInput"
+				   name="q"
+				   value="{{ query }}"
+			>
+			<button class="btn btn-primary" type="submit">
+				<i class="bi-arrow-return-left d-none d-sm-inline"></i>
+				<i class="bi-search d-sm-none"></i>
+			</button>
+		</div>
+	</form>
+	<div class="row gx-1 mb-2">
+		<div class="col-6">
+			<a class="btn btn-outline-info btn-sm w-100" href="{% url "library:syntax" %}">Syntax Guide</a>
+		</div>
+		<div class="col-6">
+			<button class="btn btn-outline-secondary btn-sm w-100 disabled">Advanced Search - WIP</button>
+		</div>
+	</div>
+	<div class="mb-2">
+		{% if search_warnings %}
+			<div class="alert alert-warning mb-0">
+				{% for warning in search_warnings %}
+					{{ warning }}
+					{% if not forloop.last %}
+						<br />
+					{% endif %}
+				{% endfor %}
+			</div>
+		{% endif %}
+		{% if search_errors %}
+			<div class="alert alert-danger mb-0">
+				{% for error in search_errors %}
+					{{ error }}
+					{% if not forloop.last %}
+						<br />
+					{% endif %}
+				{% endfor %}
+			</div>
+		{% endif %}
+	</div>
+	{% comment %}
+		TODO: Fix Pagination with GET Queries - Upgrade to Django 5.1?
+	{% endcomment %}
+	{% include "phylactery/snippets/pagination_snippet.html" %}
+	<div class="row">
+		{% for item in items_list %}
+			<div class="col-xs-12 col-sm-6 col-md-6 col-lg-4 col-xl-4 mb-3">
+				<div class="card text-center h-100">
+					<div class="card-body p-2"></div>
+					<img src="{{ item.image.url }}" 
+						 class="card-img list-card-image mx-auto" 
+						 style="object-position: center;" 
+						 alt="{{ item.name }}">
+					<div class="card-body p-2"></div>
+					<div class="card-footer">
+						<h5 class="card-title">
+							<a class="stretched-link link-underline link-underline-opacity-0 link-underline-opacity-100-hover" href="{% url 'library:item_detail' item.slug %}">
+								{{ item.name }}
+							</a>
+						</h5>
+						<p class="card-text text-muted">{{ item.get_type_display }}</p>
+					</div>
+				</div>
+			</div>			
+		{% empty %}
+			<h4>There are no results for your query.</h4>
+		{% endfor %}
+	</div>
+	{% include "phylactery/snippets/pagination_snippet.html" %}
+{% endblock %}

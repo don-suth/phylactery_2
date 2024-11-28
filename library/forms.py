@@ -10,6 +10,7 @@ from crispy_forms.layout import Layout, Fieldset, HTML, Div, Field
 from library.models import Item, Reservation, BorrowRecord, default_due_date
 from library.controller import library_controller
 from members.models import Member
+from phylactery.form_fields import HTML5DateInput
 
 
 class SelectLibraryItemsForm(forms.Form):
@@ -80,11 +81,7 @@ class ItemDueDateForm(forms.Form):
 	)
 	due_date = forms.DateField(
 		required=True,
-		widget=forms.DateInput(
-			attrs={
-				"type": "date"
-			}
-		)
+		widget=HTML5DateInput()
 	)
 	
 	def __init__(self, *args, **kwargs):
@@ -122,22 +119,24 @@ class ItemDueDateForm(forms.Form):
 	
 	def clean(self):
 		cleaned_data = super().clean()
-		item = cleaned_data["item"]
-		due_date = cleaned_data["due_date"]
-		item_availability = item.get_availability_info()
-		if not item_availability["available_to_borrow"]:
-			raise ValidationError(f"{item} is not available to borrow at the moment.")
-		if due_date > item_availability["max_due_date"]:
-			self.add_error(
-				field="due_date",
-				error=f"The due date can't be set beyond the maximum due date for this item. "
-				f"({item_availability['max_due_date']}"
-			)
-		if due_date < timezone.now().date():
-			self.add_error(
-				field="due_date",
-				error="Due date cannot be in the past."
-			)
+		item = cleaned_data.get("item")
+		due_date = cleaned_data.get("due_date")
+		if item and due_date:
+			# If both are valid so far:
+			item_availability = item.get_availability_info()
+			if not item_availability["available_to_borrow"]:
+				raise ValidationError(f"{item} is not available to borrow at the moment.")
+			if due_date > item_availability["max_due_date"]:
+				self.add_error(
+					field="due_date",
+					error=f"The due date can't be set beyond the maximum due date for this item. "
+					f"({item_availability['max_due_date']}"
+				)
+			if due_date < timezone.now().date():
+				self.add_error(
+					field="due_date",
+					error="Due date cannot be in the past."
+				)
 
 
 class InternalBorrowerDetailsForm(forms.Form):
@@ -216,20 +215,12 @@ class InternalReservationRequestForm(forms.Form):
 	)
 	requested_borrow_date = forms.DateField(
 		required=True,
-		widget=forms.DateInput(
-			attrs={
-				"type": "date"
-			}
-		),
+		widget=HTML5DateInput(),
 		label="Requested borrow date"
 	)
 	requested_return_date = forms.DateField(
 		required=True,
-		widget=forms.DateInput(
-			attrs={
-				"type": "date"
-			}
-		),
+		widget=HTML5DateInput(),
 		label="Requested return date"
 	)
 	items = forms.ModelMultipleChoiceField(
@@ -358,20 +349,12 @@ class ExternalReservationRequestForm(forms.Form):
 	)
 	requested_borrow_date = forms.DateField(
 		required=True,
-		widget=forms.DateInput(
-			attrs={
-				"type": "date"
-			}
-		),
+		widget=HTML5DateInput(),
 		label="Requested borrow date"
 	)
 	requested_return_date = forms.DateField(
 		required=True,
-		widget=forms.DateInput(
-			attrs={
-				"type": "date"
-			}
-		),
+		widget=HTML5DateInput(),
 		label="Requested return date"
 	)
 	items = forms.ModelMultipleChoiceField(
@@ -504,16 +487,8 @@ class ReservationModelForm(FutureModelForm):
 					"data-theme": "bootstrap-5"
 				}
 			),
-			"requested_date_to_borrow": forms.DateInput(
-				attrs={
-					"type": "date"
-				}
-			),
-			"requested_date_to_return": forms.DateInput(
-				attrs={
-					"type": "date"
-				}
-			),
+			"requested_date_to_borrow": HTML5DateInput(),
+			"requested_date_to_return": HTML5DateInput(),
 			"additional_details": forms.Textarea(
 				attrs={
 					"rows": 4,
@@ -773,11 +748,7 @@ class ReservationSelectItemForm(forms.Form):
 		disabled=True,
 	)
 	due_date = forms.DateField(
-		widget=forms.DateInput(
-			attrs={
-				"type": "date"
-			}
-		),
+		widget=HTML5DateInput(),
 		required=True,
 		disabled=True,
 	)

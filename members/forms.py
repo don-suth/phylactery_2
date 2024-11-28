@@ -6,6 +6,7 @@ from crispy_forms.bootstrap import StrictButton
 
 from accounts.models import UnigamesUser
 from blog.models import MailingList
+from phylactery.form_fields import HTML5DateInput
 
 
 class FresherMembershipForm(forms.Form):
@@ -208,9 +209,7 @@ class LegacyMembershipForm(FresherMembershipForm):
 	approx_join_date = forms.DateField(
 		required=True,
 		label="When did you first join Unigames? (approximately)",
-		widget=forms.DateInput(
-			attrs={"type": "date"}
-		)
+		widget=HTML5DateInput()
 	)
 	
 	def __init__(self, *args, **kwargs):
@@ -246,3 +245,55 @@ class MembershipFormPreview(forms.Form):
 				'verified_correct',
 			)
 		)
+
+
+class ChangeEmailPreferencesForm(forms.Form):
+	"""
+	Form for enabling members to change whether they receive optional emails,
+	and control which Mailing Lists they are subscribed to.
+	Note that members will always receive transactional emails.
+	(e.g. Library Borrow receipts, overdue reminders.)
+	"""
+	
+	optional_emails = forms.BooleanField(
+		required=False,
+		label="Would you like to receive email from Unigames about news and events?",
+		help_text="(We will still send you transactional email regardless. "
+		"For example, we will send you emails reminding you to return library items.)",
+	)
+	
+	def __init__(self, *args, **kwargs):
+		self.member = kwargs.pop("member")
+		super().__init__(*args, **kwargs)
+		
+		self.extra_fields = {}
+		self.helper = FormHelper()
+		self.helper.form_tag = False
+		self.helper.layout = Layout(
+			"optional_emails",
+		)
+		
+		self.initial["optional_emails"] = self.member.optional_emails
+	
+		for mailing_list in MailingList.objects.filter(is_active=True):
+			# Dynamically put each Mailing List group in the Membership Form.
+			field_name = f"mailing_list_{mailing_list.pk}"
+			self.extra_fields[field_name] = mailing_list.pk
+			self.fields[field_name] = forms.BooleanField(
+				label=mailing_list.verbose_description,
+				required=False,
+				initial=(mailing_list in self.member.mailing_lists.all())
+			)
+			self.helper.layout.append(field_name)
+	
+	def submit(self):
+		if self.member is not None:
+			self.member.optional_emails = self.cleaned_data.get("optional_emails")
+			self.member.save()
+			# Add / Remove from mailing lists as appropriate
+			for form_field, pk in self.extra_fields.items():
+				if self.cleaned_data.get(form_field) is True:
+					self.member.mailing_lists.add(pk)
+				else:
+					self.member.mailing_lists.remove(pk)
+

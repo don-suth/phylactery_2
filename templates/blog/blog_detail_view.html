@@ -2,6 +2,8 @@
 
 {% load markdown_extras %}
 
+{% block title %}{{ post.title }}{% endblock %}
+
 {% block content %}
 	<div class="card mb-3">
 		<h1 class="card-header">{{ post.title }}</h1>
