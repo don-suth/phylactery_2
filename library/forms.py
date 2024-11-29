@@ -8,7 +8,7 @@ from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Fieldset, HTML, Div, Field
 
 from library.models import Item, Reservation, BorrowRecord, default_due_date
-from library.controller import library_controller
+from library.controller import get_library_controller
 from members.models import Member
 from phylactery.form_fields import HTML5DateInput
 
@@ -183,7 +183,8 @@ class InternalBorrowerDetailsForm(forms.Form):
 	
 	def clean_member(self):
 		member = self.cleaned_data["member"]
-		if not library_controller.member_can_borrow_items(member):
+		library_controller = get_library_controller()
+		if not library_controller.member_has_borrowing_permissions(member):
 			raise ValidationError("This member cannot borrow items.")
 		return member
 
