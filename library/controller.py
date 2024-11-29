@@ -24,6 +24,17 @@ class LibraryController:
 			member.is_valid_member()
 		)
 	
+	def get_item_availability_info(self, item: Item) -> dict:
+		"""
+		Given an Item, determines the following:
+			- The maximum due date for this item, if it was to be borrowed today
+			- Whether the item is available to borrow
+			- Whether the item is in the clubroom
+			- If not available, gives an expected date for return.
+		"""
+		pass
+	
+	
 	def item_max_due_date(self, item: Item) -> date:
 		"""
 		Returns the maximum due date for an Item.
