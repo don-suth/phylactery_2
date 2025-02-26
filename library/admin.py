@@ -66,6 +66,7 @@ class ReservationModelForm(FutureModelForm):
 class ItemAdmin(admin.ModelAdmin):
 	form = ItemModelForm
 	prepopulated_fields = {"slug": ("name",)}
+	search_fields = ["name",]
 	fields = [
 		"name", "slug",
 		"image",
@@ -105,6 +106,9 @@ class BorrowRecordsInline(admin.TabularInline):
 
 
 class BorrowerDetailsAdmin(admin.ModelAdmin):
+	list_display = [
+		"__str__", "borrower_name", "borrowed_datetime", "is_external"
+	]
 	readonly_fields = [
 		"is_external", "borrower_name", "internal_member", "borrowed_datetime", "borrow_authorised_by"
 	]
