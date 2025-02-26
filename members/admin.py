@@ -22,7 +22,13 @@ class MembershipInline(admin.TabularInline):
 
 
 class MemberAdmin(admin.ModelAdmin):
+	list_display = ["__str__", "pronouns", "join_date", "is_fresher_bool", "notes"]
+	search_fields = ["short_name", "long_name"]
 	inlines = [RankInline, MembershipInline, MailingListInline]
+	
+	@admin.display(description="Fresher?", boolean=True)
+	def is_fresher_bool(self, obj):
+		return obj.is_fresher()
 
 
 @admin.action(description="Mark selected records as resolved")
