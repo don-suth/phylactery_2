@@ -23,9 +23,9 @@ class MembershipInline(admin.TabularInline):
 
 class MemberGatekeeperFilter(admin.SimpleListFilter):
 	"""
-			Adds a filter to the Member list in the admin to filter based
-			on gatekeeper status.
-		"""
+		Adds a filter to the Member list in the admin to filter based
+		on gatekeeper status.
+	"""
 	title = "Gatekeeper status:"
 	parameter_name = "gatekeeper"
 	
