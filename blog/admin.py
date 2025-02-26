@@ -21,6 +21,10 @@ class EmailOrderAdmin(admin.TabularInline):
 
 class BlogPostAdmin(admin.ModelAdmin):
 	model = BlogPost
+	
+	list_display = ["title", "publish_on", "author", "is_published_bool"]
+	search_fields = ["title", "author", "body"]
+	
 	inlines = [EmailOrderAdmin]
 	
 	# Set the slug field to generate automatically from the title.
@@ -30,6 +34,11 @@ class BlogPostAdmin(admin.ModelAdmin):
 	formfield_overrides = {
 		models.TextField: {"widget": MarkdownWidget}
 	}
+	
+	# Display pretty checkboxes to show whether something is published
+	@admin.display(description="Is Published?", boolean=True)
+	def is_published_bool(self, obj):
+		return obj.is_published
 
 
 class MailingListAdmin(admin.ModelAdmin):
