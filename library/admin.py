@@ -66,6 +66,7 @@ class ReservationModelForm(FutureModelForm):
 class ItemAdmin(admin.ModelAdmin):
 	form = ItemModelForm
 	prepopulated_fields = {"slug": ("name",)}
+	search_fields = ["name",]
 	fields = [
 		"name", "slug",
 		"image",
