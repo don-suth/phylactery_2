@@ -106,6 +106,9 @@ class BorrowRecordsInline(admin.TabularInline):
 
 
 class BorrowerDetailsAdmin(admin.ModelAdmin):
+	list_display = [
+		"__str__", "borrower_name", "borrowed_datetime", "is_external"
+	]
 	readonly_fields = [
 		"is_external", "borrower_name", "internal_member", "borrowed_datetime", "borrow_authorised_by"
 	]
