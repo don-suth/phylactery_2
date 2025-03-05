@@ -4,7 +4,7 @@ from django.utils import timezone
 from library.models import Reservation
 
 
-@shared_task(name="cleanup_permissions")
+@shared_task(name="check_for_unused_reservations")
 def check_for_unused_reservations():
 	"""
 	Check for reservations that are active, but their borrow date has passed.
