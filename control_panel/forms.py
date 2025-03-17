@@ -736,9 +736,9 @@ class BaseRedisSettingsForm(ControlPanelForm):
 		super().__init__(*args, skip_layout=True, **kwargs)
 		self.helper.layout = Layout()
 		self.redis_connection = redis.Redis(host=settings.REDIS_HOST, port=6379, decode_responses=True)
-		settings_helptext_dict = self.redis_connection.hgetall(self.REDIS_SETTINGS_KEY).items()
+		settings_helptext_dict = self.redis_connection.hgetall(self.REDIS_SETTINGS_KEY)
 		self.setting_fields = []
-		for key, help_text in settings_helptext_dict:
+		for key, help_text in settings_helptext_dict.items():
 			if self.redis_connection.type(key) == "string":
 				self.setting_fields.append(key)
 				self.fields[key] = forms.CharField(
