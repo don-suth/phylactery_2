@@ -714,25 +714,15 @@ class GetMembershipInfoForm(ControlPanelForm):
 			messages.warning(request, "No memberships exist for the chosen date.")
 
 
-class DiscordSettingsForm(ControlPanelForm):
-	form_name = "Discord Bot Settings"
-	form_short_description = "Change various settings related to the Discord bot."
-	form_long_description = (
-		"Change various settings for the Discord bot, such as what channel notifications are sent to. "
-		"You shouldn't need to adjust these settings too often."
-	)
-	form_allowed_ranks = [
-		RankChoices.PRESIDENT,
-		RankChoices.VICEPRESIDENT,
-		RankChoices.SECRETARY,
-		RankChoices.WEBKEEPER,
-	]
-	
-	DISCORD_SETTINGS_NAME = "lich:settings"
+class BaseRedisSettingsForm(ControlPanelForm):
+	"""
+	Base class for redis settings forms.
+	"""
+	REDIS_SETTINGS_KEY = ""
 	
 	def __init__(self, *args, **kwargs):
 		"""
-		This form is designed to easily set some settings related to the Discord bot.
+		This form is designed to easily set some settings stored in redis.
 		This is done by:
 			1) Connecting to the redis instance
 			2) Loading a special dict from redis, the key/value pairs of which are redis keys,
@@ -745,9 +735,9 @@ class DiscordSettingsForm(ControlPanelForm):
 		super().__init__(*args, skip_layout=True, **kwargs)
 		self.helper.layout = Layout()
 		self.redis_connection = redis.Redis(host=settings.REDIS_HOST, port=6379, decode_responses=True)
-		discord_settings_helptext = self.redis_connection.hgetall(self.DISCORD_SETTINGS_NAME).items()
+		settings_helptext_dict = self.redis_connection.hgetall(self.REDIS_SETTINGS_KEY).items()
 		self.setting_fields = []
-		for key, help_text in discord_settings_helptext:
+		for key, help_text in settings_helptext_dict:
 			if self.redis_connection.type(key) == "string":
 				self.setting_fields.append(key)
 				self.fields[key] = forms.CharField(
@@ -773,7 +763,25 @@ class DiscordSettingsForm(ControlPanelForm):
 					change_messages.append(f"Set key `{field_name}` to value '{self.cleaned_data[field_name]}'")
 			if change_messages:
 				messages.success(request, "\n".join(change_messages))
-		
+
+
+class DiscordSettingsForm(BaseRedisSettingsForm):
+	form_name = "Discord Bot Settings"
+	form_short_description = "Change various settings related to the Discord bot."
+	form_long_description = (
+		"Change various settings for the Discord bot, such as what channel notifications are sent to. "
+		"You shouldn't need to adjust these settings too often."
+	)
+	form_allowed_ranks = [
+		RankChoices.PRESIDENT,
+		RankChoices.VICEPRESIDENT,
+		RankChoices.SECRETARY,
+		RankChoices.WEBKEEPER,
+	]
+	
+	REDIS_SETTINGS_KEY = "lich:settings"
+	
+	
 
 FORM_CLASSES = {}
 for form_class in (
