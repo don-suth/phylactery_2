@@ -1,6 +1,7 @@
 import datetime
 from dal import autocomplete
 from django import forms
+from django.conf import settings
 from django.contrib import messages
 from django.http import HttpResponse
 from django.utils import timezone
@@ -11,6 +12,7 @@ from crispy_forms.bootstrap import Accordion, AccordionGroup
 from members.models import Member, Rank, RankChoices, Membership
 from phylactery.form_fields import HTML5DateInput
 import csv
+import redis
 
 
 def expire_active_ranks(rank_to_expire, rank_to_exclude):
@@ -710,7 +712,68 @@ class GetMembershipInfoForm(ControlPanelForm):
 			return response
 		else:
 			messages.warning(request, "No memberships exist for the chosen date.")
+
+
+class DiscordSettingsForm(ControlPanelForm):
+	form_name = "Discord Bot Settings"
+	form_short_description = "Change various settings related to the Discord bot."
+	form_long_description = (
+		"Change various settings for the Discord bot, such as what channel notifications are sent to. "
+		"You shouldn't need to adjust these settings too often."
+	)
+	form_allowed_ranks = [
+		RankChoices.PRESIDENT,
+		RankChoices.VICEPRESIDENT,
+		RankChoices.SECRETARY,
+		RankChoices.WEBKEEPER,
+	]
 	
+	DISCORD_SETTINGS_NAME = "lich:settings"
+	
+	def __init__(self, *args, **kwargs):
+		"""
+		This form is designed to easily set some settings related to the Discord bot.
+		This is done by:
+			1) Connecting to the redis instance
+			2) Loading a special dict from redis, the key/value pairs of which are redis keys,
+				and the help text for that key, describing what it does.
+			3) For each key in that dict, check the current value of it:
+				a) If it's a string, create a charfield
+				b) Otherwise, don't create one (maybe display a warning?)
+			4) Set the initial value of that field to the value of the key.
+		"""
+		super().__init__(*args, skip_layout=True, **kwargs)
+		self.helper.layout = Layout()
+		self.redis_connection = redis.Redis(host=settings.REDIS_HOST, port=6379, decode_responses=True)
+		discord_settings_helptext = self.redis_connection.hgetall(self.DISCORD_SETTINGS_NAME).items()
+		self.setting_fields = []
+		for key, help_text in discord_settings_helptext:
+			if self.redis_connection.type(key) == "string":
+				self.setting_fields.append(key)
+				self.fields[key] = forms.CharField(
+					label=key,
+					help_text=help_text,
+					initial=self.redis_connection.get(key),
+					required=True,
+				)
+				self.helper.layout.append(
+					Field(
+						key,
+						wrapper_class="font-monospace"
+					)
+				)
+	
+	def submit(self, request):
+		self.clean()
+		if self.is_valid():
+			change_messages = []
+			for field_name in self.setting_fields:
+				if field_name in self.changed_data:
+					self.redis_connection.set(field_name, self.cleaned_data[field_name])
+					change_messages.append(f"Set key `{field_name}` to value '{self.cleaned_data[field_name]}'")
+			if change_messages:
+				messages.success(request, "\n".join(change_messages))
+		
 
 FORM_CLASSES = {}
 for form_class in (
@@ -721,5 +784,6 @@ for form_class in (
 	AddRemoveRanksForm,
 	CommitteeTransferForm,
 	GetMembershipInfoForm,
+	DiscordSettingsForm,
 ):
 	FORM_CLASSES[slugify(form_class.form_name)] = form_class
