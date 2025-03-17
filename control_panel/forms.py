@@ -723,6 +723,7 @@ class BaseRedisSettingsForm(ControlPanelForm):
 	def __init__(self, *args, **kwargs):
 		"""
 		This form is designed to easily set some settings stored in redis.
+		For now, we only support strings.
 		This is done by:
 			1) Connecting to the redis instance
 			2) Loading a special dict from redis, the key/value pairs of which are redis keys,
