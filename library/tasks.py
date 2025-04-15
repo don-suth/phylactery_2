@@ -31,7 +31,7 @@ def send_due_date_reminder_task():
 		if record.borrower.is_external is False:
 			borrowers_with_records_due_today[record.borrower.internal_member].append(record)
 	
-	for internal_member, record_list in borrowers_with_records_due_today.values():
+	for internal_member, record_list in borrowers_with_records_due_today.items():
 		context = {
 			"member": internal_member,
 			"due_date": today,
@@ -55,7 +55,7 @@ def send_due_date_reminder_task():
 		if record.borrower.is_external is False:
 			borrowers_with_records_due_tomorrow[record.borrower.internal_member].append(record)
 	
-	for internal_member, record_list in borrowers_with_records_due_tomorrow.values():
+	for internal_member, record_list in borrowers_with_records_due_tomorrow.items():
 		context = {
 			"member": internal_member,
 			"due_date": tomorrow,
