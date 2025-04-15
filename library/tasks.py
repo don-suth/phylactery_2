@@ -31,7 +31,22 @@ def send_due_date_reminder_task():
 		if record.borrower.is_external is False:
 			borrowers_with_records_due_today[record.borrower.internal_member].append(record)
 	
-	# TODO: Send mail
+	for internal_member, record_list in borrowers_with_records_due_today.values():
+		context = {
+			"member": internal_member,
+			"due_date": today,
+			"record_list": record_list
+		}
+		plaintext_message, html_message = render_html_email(
+			template_name="library/email/reminder_today.html",
+			context=context,
+		)
+		send_single_email_task.delay(
+			email_address=internal_member.email,
+			subject="Reminder - Unigames Items Due Today",
+			message=plaintext_message,
+			html_message=html_message,
+		)
 	
 	logger.info(f"Library: {records_due_tomorrow.count()} records due tomorrow.")
 	borrowers_with_records_due_tomorrow = defaultdict(list)
@@ -40,7 +55,23 @@ def send_due_date_reminder_task():
 		if record.borrower.is_external is False:
 			borrowers_with_records_due_tomorrow[record.borrower.internal_member].append(record)
 	
-	# TODO: Send mail
+	for internal_member, record_list in borrowers_with_records_due_tomorrow.values():
+		context = {
+			"member": internal_member,
+			"due_date": tomorrow,
+			"record_list": record_list
+		}
+		plaintext_message, html_message = render_html_email(
+			template_name="library/email/reminder_tomorrow.html",
+			context=context,
+		)
+		send_single_email_task.delay(
+			email_address=internal_member.email,
+			subject="Reminder - Unigames Items Due Tomorrow",
+			message=plaintext_message,
+			html_message=html_message,
+		)
+
 
 @shared_task(name="check_for_unused_reservations")
 def check_for_unused_reservations():
