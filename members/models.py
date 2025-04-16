@@ -54,7 +54,7 @@ class Member(models.Model):
 	
 	def is_fresher(self):
 		# Simple test - if they joined this year, they are a fresher.
-		if self.join_date.year == timezone.now().year:
+		if self.join_date.year == timezone.localdate().year:
 			return True
 		else:
 			return False
@@ -106,7 +106,7 @@ class Member(models.Model):
 	def has_purchased_membership_this_year(self):
 		# Returns True if the most recent membership for this member was purchased this year.
 		membership = self.get_most_recent_membership()
-		if membership is not None and membership.date_purchased.year == timezone.now().year:
+		if membership is not None and membership.date_purchased.year == timezone.localdate().year:
 			return True
 		else:
 			return False
@@ -194,7 +194,7 @@ class Membership(models.Model):
 	Stores information about a single membership purchased for a single member.
 	"""
 	member = models.ForeignKey("Member", on_delete=models.SET_NULL, null=True, related_name="memberships")
-	date_purchased = models.DateField(default=timezone.now)
+	date_purchased = models.DateField(default=timezone.localdate)
 	guild_member = models.BooleanField()
 	amount_paid = models.IntegerField()
 	expired = models.BooleanField(default=False)
@@ -274,7 +274,7 @@ class Rank(models.Model):
 	
 	member = models.ForeignKey("Member", on_delete=models.CASCADE, related_name="ranks")
 	rank_name = models.TextField(max_length=20, choices=RankChoices.choices)
-	assigned_date = models.DateField(default=timezone.now)
+	assigned_date = models.DateField(default=timezone.localdate)
 	expired_date = models.DateField(blank=True, null=True)
 	
 	# Custom manager to help with quality of life

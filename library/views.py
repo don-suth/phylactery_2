@@ -22,7 +22,7 @@ class DashboardView(TemplateView):
 	
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)
-		today = timezone.now().date()
+		today = timezone.localdate()
 		context["unapproved_reservations"] = Reservation.objects.filter(
 			approval_status=ReservationStatus.PENDING
 		)
@@ -76,7 +76,7 @@ class ItemDetailView(DetailView):
 		context = super().get_context_data(**kwargs)
 		context["item_info"] = self.object.get_availability_info()
 		if context["item_info"]["in_clubroom"] is False:
-			today = timezone.now().date()
+			today = timezone.localdate()
 			tomorrow = today + timedelta(days=1)
 			if context["item_info"]["expected_available_date"] not in [today, tomorrow]:
 				context["available_str"] = ""

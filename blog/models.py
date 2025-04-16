@@ -87,7 +87,7 @@ class BlogPost(models.Model):
 		"""
 		if self.is_published:
 			now = timezone.now()
-			days_difference = (now.date() - self.publish_on.date()).days
+			days_difference = (now - self.publish_on).days
 			if days_difference == 0:
 				return "Today"
 			elif days_difference == 1:
@@ -95,12 +95,14 @@ class BlogPost(models.Model):
 			elif (days_difference > 1) and (days_difference < 7):
 				return f"{days_difference} days ago"
 			else:
-				return self.publish_on.date().strftime("%d/%m/%y")
+				# Convert to local timezone before formatting
+				return timezone.localdate(self.publish_on).strftime("%d/%m/%y")
 		else:
 			if self.publish_on is None:
 				return "Not published"
 			else:
-				return self.publish_on.date().strftime("Set to be published: %d/%m/%y")
+				# Convert to local timezone before formatting
+				return timezone.localdate(self.publish_on).strftime("Set to be published: %d/%m/%y")
 	
 	def __str__(self):
 		if self.is_published:

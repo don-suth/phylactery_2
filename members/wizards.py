@@ -105,7 +105,7 @@ class FresherMembershipWizard(SessionWizardView):
 		if cleaned_data.get("approx_join_date") is not None:
 			join_date = cleaned_data.get("approx_join_date")
 		else:
-			join_date = timezone.now()
+			join_date = timezone.localdate()
 		
 		# Create new Member object
 		new_member = Member.objects.create(
@@ -126,7 +126,7 @@ class FresherMembershipWizard(SessionWizardView):
 		
 		new_membership = Membership.objects.create(
 			member=new_member,
-			date_purchased=timezone.now(),
+			date_purchased=timezone.localdate(),
 			guild_member=cleaned_data.get("is_guild"),
 			amount_paid=amount_paid,
 			expired=False,
@@ -320,7 +320,7 @@ class StaleMembershipWizard(FresherMembershipWizard):
 		
 		new_membership = Membership.objects.create(
 			member=self.stale_member,
-			date_purchased=timezone.now(),
+			date_purchased=timezone.localdate(),
 			guild_member=cleaned_data.get("is_guild"),
 			amount_paid=amount_paid,
 			expired=False,

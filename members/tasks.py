@@ -42,7 +42,7 @@ def new_finance_record_digest():
 		discord_message += f"\nJust letting you know: {new_records_count} new finance record(s) have been added in the last 24 hours."
 		if outstanding_records_count > 0:
 			discord_message += f"\nIn addition, there are still {outstanding_records_count} previous finance record(s) outstanding that haven't been resolved yet."
-	elif outstanding_records_count > 0 and timezone.now().weekday() == 3:
+	elif outstanding_records_count > 0 and timezone.localdate().weekday() == 3:
 		send_message = True
 		discord_message += f"\nAs a small reminder, there are still {outstanding_records_count} previous finance record(s) outstanding that haven't been resolved yet."
 	

@@ -14,12 +14,12 @@ from taggit.models import TagBase, TaggedItemBase
 # Misc functions to help with date-related functions
 def default_due_date() -> date:
 	# Returns the default due date. Currently, two weeks from now.
-	return timezone.now().date() + timedelta(weeks=2)
+	return timezone.localdate() + timedelta(weeks=2)
 
 
 def next_weekday() -> date:
 	# Returns the next weekday. i.e. If this is called on a Fri, Sat, or Sun, returns the Monday.
-	new_date = timezone.now().date() + timedelta(days=1)
+	new_date = timezone.localdate() + timedelta(days=1)
 	while new_date.weekday() in {5, 6}:
 		new_date += timedelta(days=1)
 	return new_date
@@ -27,7 +27,7 @@ def next_weekday() -> date:
 
 def tomorrow() -> date:
 	# Returns tomorrow's date.
-	return (timezone.now() + timedelta(days=1)).date()
+	return timezone.localdate() + timedelta(days=1)
 
 
 def dates_between(from_date: date, to_date: date) -> set[date]:
@@ -440,7 +440,7 @@ class Item(models.Model):
 			item_availability_info["expected_available_date"] = None
 		else:
 			invalid_dates = get_invalid_dates(item_active_borrow_records, item_active_reservations)
-			available_date = timezone.now().date()
+			available_date = timezone.localdate()
 			while available_date in invalid_dates:
 				available_date += timedelta(days=1)
 			item_availability_info["expected_available_date"] = available_date
