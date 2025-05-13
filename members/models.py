@@ -189,6 +189,13 @@ class Member(models.Model):
 		return self.get_borrow_records().filter(returned=False)
 
 
+class PaymentChoices(models.TextChoices):
+	NONE = "NONE", "-"
+	CASH = "CASH", "Cash"
+	CARD = "CARD", "Card"
+	TRANSFER = "TFER", "Bank Transfer"
+
+
 class Membership(models.Model):
 	"""
 	Stores information about a single membership purchased for a single member.
@@ -197,6 +204,7 @@ class Membership(models.Model):
 	date_purchased = models.DateField(default=timezone.now)
 	guild_member = models.BooleanField()
 	amount_paid = models.IntegerField()
+	payment_method = models.CharField(max_length=5, choices=PaymentChoices.choices, default=PaymentChoices.NONE)
 	expired = models.BooleanField(default=False)
 	authorised_by = models.ForeignKey("Member", on_delete=models.SET_NULL, blank=True, null=True, related_name="authorised")
 	

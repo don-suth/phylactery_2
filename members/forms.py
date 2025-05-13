@@ -234,10 +234,11 @@ class LegacyMembershipForm(FresherMembershipForm):
 
 class MembershipFormPreview(forms.Form):
 	class PaymentChoices(TextChoices):
-		CASH = "cash", "Paying with cash"
-		TRANSFER = "transfer", "Paying via bank transfer"
+		CASH = "CASH", "Paying with cash"
+		TRANSFER = "TFER", "Paying via bank transfer"
+		CARD = "CARD", "Paying with card"
 	
-	cash_or_transfer = forms.ChoiceField(
+	payment_method = forms.ChoiceField(
 		widget=forms.RadioSelect(),
 		choices=PaymentChoices,
 		required=True,
@@ -260,7 +261,7 @@ class MembershipFormPreview(forms.Form):
 		self.helper.form_tag = False
 		self.helper.layout = Layout(
 			HTML("{% include 'members/snippets/membership_form_gatekeeper_reminder.html' %}"),
-			Field("cash_or_transfer", template="members/snippets/radio_button_template.html"),
+			Field("payment_method", template="members/snippets/radio_button_template.html"),
 			HTML("{% include 'members/snippets/membership_form_gatekeeper_reminder_2.html' %}"),
 			Field('reference_code', css_class="form-control-lg text-center"),
 			HTML("{% include 'members/snippets/membership_form_gatekeeper_reminder_3.html' %}"),
@@ -270,10 +271,10 @@ class MembershipFormPreview(forms.Form):
 	
 	def clean(self):
 		cleaned_data = super().clean()
-		cash_or_transfer = cleaned_data.get("cash_or_transfer")
+		payment_method = cleaned_data.get("payment_method")
 		reference_code = cleaned_data.get("reference_code")
 		
-		if cash_or_transfer == "transfer" and not reference_code:
+		if payment_method == "TFER" and not reference_code:
 			self.add_error("reference_code", "A reference code is required if paying via bank transfer.")
 		
 		return cleaned_data
