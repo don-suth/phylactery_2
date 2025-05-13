@@ -18,7 +18,8 @@ class MembershipInline(admin.TabularInline):
 	model = Membership
 	extra = 0
 	fk_name = "member"
-	fields = ("date_purchased", "guild_member", "amount_paid", "expired", "authorised_by")
+	fields = ("date_purchased", "guild_member", "amount_paid", "payment_method", "expired", "authorised_by")
+	readonly_fields = ("payment_method",)
 
 
 class MemberGatekeeperFilter(admin.SimpleListFilter):

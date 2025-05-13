@@ -129,6 +129,7 @@ class FresherMembershipWizard(SessionWizardView):
 			date_purchased=timezone.now(),
 			guild_member=cleaned_data.get("is_guild"),
 			amount_paid=amount_paid,
+			payment_method=cleaned_data.get("payment_method"),
 			expired=False,
 			authorised_by=self.request.unigames_member
 		)
@@ -140,7 +141,7 @@ class FresherMembershipWizard(SessionWizardView):
 				new_member.mailing_lists.add(pk)
 		
 		# If they paid with a transfer, add in the reference code
-		if cleaned_data.get("cash_or_transfer") == "transfer":
+		if cleaned_data.get("payment_method") == "TFER":
 			FinanceRecord.objects.create(
 				member=new_member,
 				purchase_type="Membership",
@@ -323,13 +324,14 @@ class StaleMembershipWizard(FresherMembershipWizard):
 			date_purchased=timezone.now(),
 			guild_member=cleaned_data.get("is_guild"),
 			amount_paid=amount_paid,
+			payment_method=cleaned_data.get("payment_method"),
 			expired=False,
 			authorised_by=self.request.unigames_member
 		)
 		new_membership.save()
 		
 		# If they paid with a transfer, add in the reference code
-		if cleaned_data.get("cash_or_transfer") == "transfer":
+		if cleaned_data.get("payment_method") == "TFER":
 			FinanceRecord.objects.create(
 				member=self.stale_member,
 				purchase_type="Membership",
