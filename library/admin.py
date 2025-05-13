@@ -130,6 +130,8 @@ class BorrowerDetailsAdmin(admin.ModelAdmin):
 
 class LibraryTagAdmin(admin.ModelAdmin):
 	prepopulated_fields = {"slug": ("name",)}
+	search_fields = ["name",]
+	autocomplete_fields = ["parents",]
 	
 
 class ReservationAdmin(admin.ModelAdmin):
