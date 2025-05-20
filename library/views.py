@@ -64,6 +64,18 @@ class DashboardView(TemplateView):
 			borrow_records__returned_datetime=None,
 			borrow_records__due_date__lt=today,
 		)
+		context["outstanding_items"] = BorrowRecord.objects.filter(
+			returned=False,
+		).values_list(
+			"borrower__borrower_name",
+			"item__name",
+			"due_date",
+			named=True,
+		).order_by(
+			"borrower__borrower_name",
+			"due_date",
+			"item__name",
+		)
 		return context
 
 
