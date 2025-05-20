@@ -40,7 +40,7 @@ class InternalBorrowItemsWizard(SessionWizardView):
 	]
 	template_name = "library/library_borrow_wizard.html"
 	
-	def render_goto_step(self, *args, **kwargs):
+	def render_goto_step(self, goto_step, **kwargs):
 		"""
 		This method overrides the WizardView Method.
 		When going back a step, it allows the form to validate data that you may have already entered.
@@ -48,9 +48,20 @@ class InternalBorrowItemsWizard(SessionWizardView):
 		"""
 		form = self.get_form(data=self.request.POST, files=self.request.FILES)
 		if form.is_valid():
-			self.storage.set_step_data(self.steps.current, self.process_step(form))
-			self.storage.set_step_files(self.steps.current, self.process_step_files(form))
-		return super().render_goto_step(*args, **kwargs)
+			if goto_step == "select":
+				# If we go back to the Item select screen, delete all old due_date data,
+				# and warn the user that we've done so.
+				# Otherwise, the option to enter a due date for the new items won't appear.
+				messages.warning(
+					self.request,
+					"Since you have gone back to the Item selection step, all entered due dates have been reset. "
+					"Make sure the entered due dates are correct when going to the next step."
+				)
+				self.storage.set_step_data("due_dates", None)
+			else:
+				self.storage.set_step_data(self.steps.current, self.process_step(form))
+				self.storage.set_step_files(self.steps.current, self.process_step_files(form))
+		return super().render_goto_step(goto_step, **kwargs)
 	
 	def get_form_initial(self, step):
 		"""
