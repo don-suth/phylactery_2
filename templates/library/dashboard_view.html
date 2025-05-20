@@ -259,6 +259,41 @@
 					</div>
 				</div>
 			</div>
+
+			{% if outstanding_items %}
+				{% regroup outstanding_items by borrower__borrower_name as outstanding_items_by_borrower %}
+
+				<div class="row">
+					<div class="col">
+						<div class="card text-center">
+							<div class="card-body">
+								<h4 class="card-title">Outstanding Items by Borrower</h4>
+							</div>
+							<table class="table table-hover text-start">
+								<thead>
+									<tr>
+										<th scope="col" class="ps-3">Name</th>
+										<th scope="col">Due Date</th>
+									</tr>
+								</thead>
+								{% for borrower in outstanding_items_by_borrower %}
+									<tbody class="table-group-divider">
+										<tr>
+											<td colspan="2" class="ps-3">{{ borrower.grouper }}</td>
+										</tr>
+										{% for record in borrower.list %}
+											<tr>
+												<td class="ps-4"><i class="bi bi-dot"></i> {{ record.item__name }}</td>
+												<td>{{ record.due_date }}</td>
+											</tr>
+										{% endfor %}
+									</tbody>
+								{% endfor %}
+							</table>
+						</div>
+					</div>
+				</div>
+			{% endif %}
 		</div>
 	</div>
 {% endblock %}
