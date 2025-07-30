@@ -780,17 +780,33 @@ class BaseRedisSettingsForm(ControlPanelForm):
 						)
 					)
 				case "boolean":
-					pass
+					self.setting_fields.append(key)
+					self.fields[key] = forms.BooleanField(
+						label=key,
+						help_text=key_help,
+						initial=bool(int(value)),
+						required=False,
+					)
+					self.helper.layout.append(
+						Field(
+							key,
+							wrapper_class="font-monospace"
+						)
+					)
+				
 			
-	
 	def submit(self, request):
 		self.clean()
 		if self.is_valid():
 			change_messages = []
 			for field_name in self.setting_fields:
 				if field_name in self.changed_data:
-					self.redis_connection.set(field_name, self.cleaned_data[field_name])
-					change_messages.append(f"Set key `{field_name}` to value '{self.cleaned_data[field_name]}'")
+					cleaned_field_data = self.cleaned_data[field_name]
+					# If it's a boolean, change to an integer for storage in redis
+					if type(cleaned_field_data) is bool:
+						cleaned_field_data = int(cleaned_field_data)
+					self.redis_connection.hset(self.REDIS_SETTINGS_KEY, field_name, cleaned_field_data)
+					change_messages.append(f"Set key `{field_name}` to value '{cleaned_field_data}'")
 			if change_messages:
 				messages.success(request, "\n".join(change_messages))
 
