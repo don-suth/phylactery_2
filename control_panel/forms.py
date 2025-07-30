@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.http import HttpResponse
 from django.utils import timezone
 from django.utils.text import slugify
+from colorfield.widgets import ColorWidget
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Field
 from crispy_forms.bootstrap import Accordion, AccordionGroup
@@ -726,33 +727,61 @@ class BaseRedisSettingsForm(ControlPanelForm):
 		For now, we only support strings.
 		This is done by:
 			1) Connecting to the redis instance
-			2) Loading a special dict from redis, the key/value pairs of which are redis keys,
-				and the help text for that key, describing what it does.
+			2) Loading a few special dicts (hashes) from redis, which are:
+				- The base settings dict (stored in REDIS_SETTINGS_KEY), which stores key names and values
+				- The field type dict (REDIS_SETTINGS_KEY:types), which stores the data type of each key
+					- Valid types: string, colour, boolean
+				- The help text dict (REDIS_SETTINGS_KEY:help), which stores the help text for each key.
 			3) For each key in that dict, check the current value of it:
 				a) If it's a string, create a charfield
-				b) Otherwise, don't create one (maybe display a warning?)
+				b) If it's a colour, create a colour field.
+				c) If it's a bool, create a choice field.
+				d) Otherwise, don't create one (maybe display a warning?)
 			4) Set the initial value of that field to the value of the key.
 		"""
 		super().__init__(*args, skip_layout=True, **kwargs)
 		self.helper.layout = Layout()
 		self.redis_connection = redis.Redis(host=settings.REDIS_HOST, port=6379, decode_responses=True)
-		settings_helptext_dict = self.redis_connection.hgetall(self.REDIS_SETTINGS_KEY)
+		key_values_dict = self.redis_connection.hgetall(self.REDIS_SETTINGS_KEY)
+		key_types_dict = self.redis_connection.hgetall(f"{self.REDIS_SETTINGS_KEY}:types")
+		key_help_dict = self.redis_connection.hgetall(f"{self.REDIS_SETTINGS_KEY}:help")
 		self.setting_fields = []
-		for key, help_text in settings_helptext_dict.items():
-			if self.redis_connection.type(key) == "string":
-				self.setting_fields.append(key)
-				self.fields[key] = forms.CharField(
-					label=key,
-					help_text=help_text,
-					initial=self.redis_connection.get(key),
-					required=True,
-				)
-				self.helper.layout.append(
-					Field(
-						key,
-						wrapper_class="font-monospace"
+		for key, value in key_values_dict.items():
+			key_type = key_types_dict[key]
+			key_help = key_help_dict[key]
+			match key_type:
+				case "string":
+					self.setting_fields.append(key)
+					self.fields[key] = forms.CharField(
+						label=key,
+						help_text=key_help,
+						initial=value,
+						required=True,
 					)
-				)
+					self.helper.layout.append(
+						Field(
+							key,
+							wrapper_class="font-monospace"
+						)
+					)
+				case "colour":
+					self.setting_fields.append(key)
+					self.fields[key] = forms.CharField(
+						label=key,
+						help_text=key_help,
+						initial=value,
+						required=True,
+						widget=ColorWidget(attrs={"format": "rgb"})
+					)
+					self.helper.layout.append(
+						Field(
+							key,
+							wrapper_class="font-monospace"
+						)
+					)
+				case "boolean":
+					pass
+			
 	
 	def submit(self, request):
 		self.clean()

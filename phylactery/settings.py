@@ -19,6 +19,7 @@ ALLOWED_HOSTS = ["localhost", "0.0.0.0", "127.0.0.1"]
 
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = [
+	"colorfield",
 	"dal",
 	"dal_select2",
 	"django.contrib.admin",
