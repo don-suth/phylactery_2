@@ -1,0 +1,12 @@
+{% extends "_base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}Become Superuser{% endblock %}
+
+{% block content %}
+	<h2>Enable Superuser Mode</h2>
+	<form method="POST" action="">
+		{% crispy form %}
+		<button class="btn btn-primary" type="submit">Save Settings</button>
+	</form>
+{% endblock %}
