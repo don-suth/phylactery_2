@@ -5,9 +5,9 @@ from django.http.response import Http404
 from django.shortcuts import redirect
 from django.utils.decorators import method_decorator
 from django.views.generic import ListView, TemplateView, DetailView, FormView
-from .models import Member
-from .decorators import gatekeeper_required
-from .forms import ChangeEmailPreferencesForm
+from .models import Member, RankChoices
+from .decorators import gatekeeper_required, webkeeper_required
+from .forms import ChangeEmailPreferencesForm, ToggleSuperuserForm
 
 
 @method_decorator(gatekeeper_required, name="dispatch")
@@ -71,3 +71,32 @@ class ChangeEmailPreferencesView(LoginRequiredMixin, FormView):
 		form.submit()
 		messages.success(self.request, "Email preferences saved.")
 		return redirect("members:my_profile")
+
+@method_decorator(webkeeper_required, name="dispatch")
+class ToggleSuperuserView(FormView):
+	form_class = ToggleSuperuserForm
+	template_name = "members/become_superuser_form.html"
+	
+	def get_template_names(self):
+		if self.request.unigames_member.has_rank(RankChoices.SUPERUSER):
+			return ["members/unmake_superuser_form.html"]
+		else:
+			return ["members/become_superuser_form.html"]
+	
+	def form_valid(self, form):
+		member = self.request.unigames_member
+		if member is None:
+			messages.error(
+				self.request,
+				"Something went wrong. Please try again later."
+			)
+		elif member.has_rank(RankChoices.SUPERUSER):
+			member.unmake_superuser()
+			messages.success(self.request, "You have exited superuser mode.")
+		else:
+			member.make_superuser()
+			messages.success(
+				self.request,
+				"You have entered superuser mode. With great power comes great responsibility!"
+			)
+		return redirect("home")

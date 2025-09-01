@@ -92,4 +92,26 @@ def staff_required(function=None):
 	if function:
 		return actual_decorator(function)
 	return actual_decorator
+
+
+def webkeeper_required(function=None):
+	"""
+	Decorator for views - requires a Webkeeper to be logged in.
+	If they are logged in, but not a Webkeeper, then raise 403.
+	Otherwise, redirect them to the login page.
+	"""
 	
+	def webkeeper_test(u):
+		if u.is_authenticated:
+			if u.get_member is not None and u.get_member.is_webkeeper():
+				return True
+			else:
+				raise PermissionDenied
+		else:
+			return False
+	
+	actual_decorator = user_passes_test(webkeeper_test)
+	
+	if function:
+		return actual_decorator(function)
+	return actual_decorator
