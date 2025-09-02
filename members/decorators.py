@@ -94,9 +94,10 @@ def staff_required(function=None):
 	return actual_decorator
 
 
-def webkeeper_required(function=None):
+def potential_superuser_required(function=None):
 	"""
-	Decorator for views - requires a Webkeeper to be logged in.
+	Decorator for views - requires a potential superuser to be logged in.
+	Currently, this is Webkeepers. But this could be expanded to exec as well.
 	If they are logged in, but not a Webkeeper, then raise 403.
 	Otherwise, redirect them to the login page.
 	"""
@@ -111,6 +112,29 @@ def webkeeper_required(function=None):
 			return False
 	
 	actual_decorator = user_passes_test(webkeeper_test)
+	
+	if function:
+		return actual_decorator(function)
+	return actual_decorator
+
+
+def superuser_required(function=None):
+	"""
+	Decorator for views - requires a superuser to be logged in.
+	If they are logged in, but not a superuser, then raise 403.
+	Otherwise, redirect them to the login page.
+	"""
+	
+	def superuser_test(u):
+		if u.is_authenticated:
+			if u.get_member is not None and u.get_member.is_superuser():
+				return True
+			else:
+				raise PermissionDenied
+		else:
+			return False
+	
+	actual_decorator = user_passes_test(superuser_test)
 	
 	if function:
 		return actual_decorator(function)
