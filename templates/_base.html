@@ -30,7 +30,7 @@
 	{% endblock %}
 </head>
 
-<body>
+<body class="{% if user.is_authenticated and user.member.is_superuser %}superuser-alert{% endif %}">
 <div class="main-container mb-3">
 	<header>
 		<nav class="navbar navbar-expand-lg mb-3 border-bottom">
@@ -100,6 +100,10 @@
 									Actions
 								</a>
 								<ul class="dropdown-menu dropdown-menu-end">
+									{% if user.member.is_superuser %}
+										<li><h6 class="dropdown-header">You are currently in superuser mode</h6></li>
+										<li><hr class="dropdown-divider"></li>
+									{% endif %}
 									{% if user.member.is_committee %}
 										<li><h6 class="dropdown-header">Committee Stuff</h6></li>
 										<li><a class="dropdown-item" href="{% url 'admin:index' %}">Admin Site</a></li>
@@ -126,6 +130,15 @@
 								<ul class="dropdown-menu dropdown-menu-end">
 									<li><h6 class="dropdown-header">Logged in as {{ user.member.short_name }}</h6></li>
 									<li><a class="dropdown-item" href="{% url 'members:my_profile' %}">My Profile</a></li>
+									{% if user.member.is_potential_superuser and not user.member.is_superuser %}
+										<li><a class="dropdown-item" href="{% url 'members:make_superuser' %}">Enter Superuser Mode</a></li>
+									{% endif %}
+									{% if user.member.is_superuser %}
+										<li><a class="dropdown-item" href="{% url 'members:unmake_superuser' %}">Exit Superuser Mode</a></li>
+									{% endif %}
+									<li>
+										<hr class="dropdown-divider">
+									</li>
 									<li><a class="dropdown-item" href="{% url 'account_logout' %}">Logout</a></li>
 								</ul>
 							{% else %}

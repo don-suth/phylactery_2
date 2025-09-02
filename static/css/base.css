@@ -46,6 +46,43 @@
   }
 }*/
 
+/*
+    This is for the SuperUser mode warning lights
+*/
+body {
+    position: relative;
+}
+
+body.superuser-alert::before {
+    background-image: repeating-linear-gradient(
+        -45deg,
+        rgba(255, 0, 0, 1),
+        rgba(255, 0, 0, 1) 14.5px,
+        rgba(255, 255, 255, 0) 14.5px,
+        rgba(255, 255, 255, 0) 72.5px
+	);
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    content: "";
+    opacity: 0.5;
+    animation-name: fade-in-out;
+    animation-direction: alternate;
+    animation-duration: 5s;
+    animation-iteration-count: infinite;
+    z-index: -1;
+}
+
+@keyframes fade-in-out {
+    from {
+        opacity: 0.4;
+    }
+    to {
+        opacity: 0.1;
+    }
+}
 
 .pricing-header {
   max-width: 700px;

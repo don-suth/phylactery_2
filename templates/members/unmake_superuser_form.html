@@ -1,0 +1,22 @@
+{% extends "_base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}Become Superuser{% endblock %}
+
+{% block content %}
+	<div class="card w-100">
+		<h2 class="card-header">You are about to exit superuser mode</h2>
+		<div class="card-body">
+			<p class="card-text">
+				After exiting superuser mode, your permissions (and website appearance) will revert to normal.
+			</p>
+			<form method="POST" action="">
+				<p class="card-text">
+					{% crispy form %}
+					<button class="btn btn-primary" type="submit">Submit</button>
+				</p>
+			</form>
+		</div>
+	</div>
+
+{% endblock %}

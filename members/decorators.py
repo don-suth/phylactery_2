@@ -92,4 +92,49 @@ def staff_required(function=None):
 	if function:
 		return actual_decorator(function)
 	return actual_decorator
+
+
+def potential_superuser_required(function=None):
+	"""
+	Decorator for views - requires a potential superuser to be logged in.
+	If they are logged in, but not a potential superuser, then raise 403.
+	Otherwise, redirect them to the login page.
+	"""
 	
+	def potential_superuser_test(u):
+		if u.is_authenticated:
+			if u.get_member is not None and u.get_member.is_potential_superuser():
+				return True
+			else:
+				raise PermissionDenied
+		else:
+			return False
+	
+	actual_decorator = user_passes_test(potential_superuser_test)
+	
+	if function:
+		return actual_decorator(function)
+	return actual_decorator
+
+
+def superuser_required(function=None):
+	"""
+	Decorator for views - requires a superuser to be logged in.
+	If they are logged in, but not a superuser, then raise 403.
+	Otherwise, redirect them to the login page.
+	"""
+	
+	def superuser_test(u):
+		if u.is_authenticated:
+			if u.get_member is not None and u.get_member.is_superuser():
+				return True
+			else:
+				raise PermissionDenied
+		else:
+			return False
+	
+	actual_decorator = user_passes_test(superuser_test)
+	
+	if function:
+		return actual_decorator(function)
+	return actual_decorator

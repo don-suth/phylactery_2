@@ -12,6 +12,8 @@ from members.views import (
 	GatekeeperProfileView,
 	MyProfileView,
 	ChangeEmailPreferencesView,
+	MakeSuperuserView,
+	UnmakeSuperuserView,
 )
 
 
@@ -26,5 +28,7 @@ urlpatterns = [
 	path("profile/me/", MyProfileView.as_view(), name="my_profile"),
 	path("profile/<int:pk>/", GatekeeperProfileView.as_view(), name="profile"),
 	path("finance/", FinanceRecordWizard.as_view(), name="finance_record"),
+	path("superuser/make/", MakeSuperuserView.as_view(), name="make_superuser"),
+	path("superuser/unmake/", UnmakeSuperuserView.as_view(), name="unmake_superuser"),
 	path("autocomplete_member", MemberAutocomplete.as_view(), name="autocomplete_member"),
 ]

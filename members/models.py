@@ -5,10 +5,13 @@ from django.db import models
 from django.db.models import Case, When, Value, Q
 from django.db.models.functions import Now
 from django.utils import timezone
+import logging
 
 from accounts.models import UnigamesUser
 from library.models import BorrowRecord
 from members.codes import generate_reference_code
+
+logger = logging.getLogger(__name__)
 
 # Advanced models are models we shouldn't let anyone but Webkeepers touch.
 # For permission syncing.
@@ -116,15 +119,23 @@ class Member(models.Model):
 		return self.has_rank(RankChoices.LIFEMEMBER)
 	
 	# The following are the preferred methods of testing for privileges.
-	# Webkeepers get these privileges as well for debugging.
+	# Superuser Webkeepers get these privileges as well for debugging.
 	def is_gatekeeper(self):
-		return self.is_valid_member() and self.has_rank(RankChoices.GATEKEEPER, RankChoices.WEBKEEPER)
+		return self.is_valid_member() and self.has_rank(RankChoices.GATEKEEPER, RankChoices.SUPERUSER)
 	
 	def is_committee(self):
-		return self.is_valid_member() and self.has_rank(RankChoices.COMMITTEE, RankChoices.WEBKEEPER)
+		return self.is_valid_member() and self.has_rank(RankChoices.COMMITTEE, RankChoices.SUPERUSER)
 	
 	def is_webkeeper(self):
 		return self.is_valid_member() and self.has_rank(RankChoices.WEBKEEPER)
+	
+	def is_potential_superuser(self):
+		# Currently, this is just webkeepers.
+		# This could be updated later to include other roles (eg. Exec, or President)
+		return self.is_webkeeper()
+	
+	def is_superuser(self):
+		return self.is_valid_member() and self.has_rank(RankChoices.SUPERUSER)
 	
 	def is_exec(self):
 		return (
@@ -135,9 +146,31 @@ class Member(models.Model):
 				RankChoices.TREASURER,
 				RankChoices.SECRETARY,
 				RankChoices.LIBRARIAN,
-				RankChoices.WEBKEEPER
+				RankChoices.SUPERUSER
 			)
 		)
+	
+	def make_superuser(self):
+		if self.is_valid_member() and not self.has_rank(RankChoices.SUPERUSER):
+			self.add_rank(RankChoices.SUPERUSER)
+			self.sync_permissions()
+			logger.warning(f"Member {self.pk} ({self.long_name}) has entered superuser mode.")
+			return True
+		else:
+			return False
+	
+	def unmake_superuser(self):
+		# We check for the rank rather than using the is_superuser method
+		# because otherwise you could get into scenarios where someone could "stash"
+		# superuser status until later.
+		if self.has_rank(RankChoices.SUPERUSER):
+			superuser_ranks_to_delete = self.ranks.filter(rank_name=RankChoices.SUPERUSER)
+			superuser_ranks_to_delete.delete()
+			self.sync_permissions()
+			logger.warning(f"Member {self.pk} ({self.long_name}) has exited superuser mode.")
+			return True
+		else:
+			return False
 	
 	def sync_permissions(self):
 		"""
@@ -155,7 +188,7 @@ class Member(models.Model):
 			is_staff = True
 		
 		is_superuser = False
-		if self.has_rank(RankChoices.WEBKEEPER) and self.is_valid_member():
+		if self.is_superuser():
 			is_superuser = True
 		
 		if not is_staff:
@@ -232,6 +265,7 @@ class RankChoices(models.TextChoices):
 	FRESHERREP = 'FRESHERREP', 'Fresher-Rep'
 	OCM = 'OCM', 'OCM'
 	IPP = 'IPP', 'IPP (Immediate Past President)'
+	SUPERUSER = "SUPERUSER", "Superuser Mode Active"
 
 
 class RankManager(models.Manager):
