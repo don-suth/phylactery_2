@@ -5,10 +5,13 @@ from django.db import models
 from django.db.models import Case, When, Value, Q
 from django.db.models.functions import Now
 from django.utils import timezone
+import logging
 
 from accounts.models import UnigamesUser
 from library.models import BorrowRecord
 from members.codes import generate_reference_code
+
+logger = logging.getLogger(__name__)
 
 # Advanced models are models we shouldn't let anyone but Webkeepers touch.
 # For permission syncing.
@@ -151,14 +154,14 @@ class Member(models.Model):
 		if self.is_valid_member() and not self.has_rank(RankChoices.SUPERUSER):
 			self.add_rank(RankChoices.SUPERUSER)
 			self.sync_permissions()
-			# TODO: Log superuser privilege gain
+			logger.warning(f"Member {self.pk} ({self.long_name}) has entered superuser mode.")
 	
 	def unmake_superuser(self):
 		if self.is_superuser():
 			superuser_ranks_to_delete = self.ranks.filter(rank_name=RankChoices.SUPERUSER)
 			superuser_ranks_to_delete.delete()
-			# TODO: Log superuser privilege loss
 			self.sync_permissions()
+			logger.warning(f"Member {self.pk} ({self.long_name}) has exited superuser mode.")
 	
 	def sync_permissions(self):
 		"""
