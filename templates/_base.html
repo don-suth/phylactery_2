@@ -100,6 +100,10 @@
 									Actions
 								</a>
 								<ul class="dropdown-menu dropdown-menu-end">
+									{% if user.member.is_superuser %}
+										<li><h6 class="dropdown-header">You are currently in superuser mode</h6></li>
+										<li><hr class="dropdown-divider"></li>
+									{% endif %}
 									{% if user.member.is_committee %}
 										<li><h6 class="dropdown-header">Committee Stuff</h6></li>
 										<li><a class="dropdown-item" href="{% url 'admin:index' %}">Admin Site</a></li>
