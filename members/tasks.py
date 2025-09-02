@@ -17,8 +17,12 @@ def cleanup_permissions():
 	from members.models import Member
 	successful = 0
 	for member in Member.objects.all():
-		if member.sync_permissions():
+		if member.is_superuser():
+			member.unmake_superuser()
 			successful += 1
+		else:
+			if member.sync_permissions():
+				successful += 1
 	logger.info(f"Synced permissions of {successful} members.")
 
 
