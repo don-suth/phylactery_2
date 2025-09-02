@@ -134,19 +134,6 @@ class Member(models.Model):
 	def is_superuser(self):
 		return self.is_valid_member() and self.has_rank(RankChoices.SUPERUSER)
 	
-	def make_superuser(self):
-		if self.is_valid_member() and not self.has_rank(RankChoices.SUPERUSER):
-			self.add_rank(RankChoices.SUPERUSER)
-			self.sync_permissions()
-			# TODO: Log superuser privilege gain
-	
-	def unmake_superuser(self):
-		if self.is_superuser():
-			superuser_ranks_to_delete = self.ranks.filter(rank_name=RankChoices.SUPERUSER)
-			superuser_ranks_to_delete.delete()
-			# TODO: Log superuser privilege loss
-			self.sync_permissions()
-	
 	def is_exec(self):
 		return (
 			self.is_valid_member() and
@@ -159,6 +146,19 @@ class Member(models.Model):
 				RankChoices.SUPERUSER
 			)
 		)
+	
+	def make_superuser(self):
+		if self.is_valid_member() and not self.has_rank(RankChoices.SUPERUSER):
+			self.add_rank(RankChoices.SUPERUSER)
+			self.sync_permissions()
+			# TODO: Log superuser privilege gain
+	
+	def unmake_superuser(self):
+		if self.is_superuser():
+			superuser_ranks_to_delete = self.ranks.filter(rank_name=RankChoices.SUPERUSER)
+			superuser_ranks_to_delete.delete()
+			# TODO: Log superuser privilege loss
+			self.sync_permissions()
 	
 	def sync_permissions(self):
 		"""
