@@ -126,6 +126,11 @@ class Member(models.Model):
 	def is_webkeeper(self):
 		return self.is_valid_member() and self.has_rank(RankChoices.WEBKEEPER)
 	
+	def is_potential_superuser(self):
+		# Currently, this is just webkeepers.
+		# This could be updated later to include other roles (eg. Exec, or President)
+		return self.is_webkeeper()
+	
 	def is_superuser(self):
 		return self.is_valid_member() and self.has_rank(RankChoices.SUPERUSER)
 	
