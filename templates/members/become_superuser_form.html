@@ -4,9 +4,8 @@
 {% block title %}Become Superuser{% endblock %}
 
 {% block content %}
-	<h2>Enable Superuser Mode</h2>
 	<div class="card w-100 border-danger">
-		<h3 class="card-header">You are about to enter superuser mode</h3>
+		<h2 class="card-header text-center border-danger">You are about to enter superuser mode</h2>
 		<div class="card-body">
 			<p class="card-text">
 				While in superuser mode, you are able to do things you wouldn't be able to do normally.
@@ -18,13 +17,14 @@
 				<li>While you are in superuser mode, the appearance of the website will change to remind you.</li>
 				<li>Actions that you take while in superuser mode could irreversibly damage systems.</li>
 				<li>If you aren't absolutely sure of what you're doing, check with someone else first.</li>
-				<li>It is highly recommended to exit superuser mode manually (by returning to this page) when it is no longer needed.</li>
+				<li>It is highly recommended to exit superuser mode manually (by using the menu link) when it is no longer needed.</li>
 				<li>You will automatically exit superuser mode at midnight.</li>
 			</ul>
 			<form method="POST" action="">
 				<p class="card-text">
 					{% crispy form %}
-					<button class="btn btn-primary" type="submit">Submit</button>
+					<a class="btn btn-secondary" href="{% url 'home' %}">Go Back</a>
+					<button class="btn btn-danger float-end" type="submit">Enter Superuser Mode</button>
 				</p>
 			</form>
 		</div>
