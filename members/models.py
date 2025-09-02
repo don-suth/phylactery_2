@@ -155,13 +155,22 @@ class Member(models.Model):
 			self.add_rank(RankChoices.SUPERUSER)
 			self.sync_permissions()
 			logger.warning(f"Member {self.pk} ({self.long_name}) has entered superuser mode.")
+			return True
+		else:
+			return False
 	
 	def unmake_superuser(self):
-		if self.is_superuser():
+		# We check for the rank rather than using the is_superuser method
+		# because otherwise you could get into scenarios where someone could "stash"
+		# superuser status until later.
+		if self.has_rank(RankChoices.SUPERUSER):
 			superuser_ranks_to_delete = self.ranks.filter(rank_name=RankChoices.SUPERUSER)
 			superuser_ranks_to_delete.delete()
 			self.sync_permissions()
 			logger.warning(f"Member {self.pk} ({self.long_name}) has exited superuser mode.")
+			return True
+		else:
+			return False
 	
 	def sync_permissions(self):
 		"""
