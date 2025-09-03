@@ -187,3 +187,8 @@ html[data-bs-theme="dark"] .select2-container--bootstrap-5 .select2-dropdown {
 html[data-bs-theme="dark"] .select2-container--bootstrap-5 .select2-dropdown .select2-results__options .select2-results__option[role=group] .select2-results__group {
 	color: var(--bs-secondary-color)!important;
 }
+
+html[data-cb-theme="orange"] {
+    --bs-link-color-rgb: 255, 145, 0;
+    --bs-link-hover-color-rgb: 255, 174, 66;
+}
