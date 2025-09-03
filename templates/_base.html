@@ -212,11 +212,12 @@
 
 
 <div class="offcanvas offcanvas-bottom" id="offcanvas-theme-selector" aria-labelledby="theme-selector-title">
-	<div class="offcanvas-header">
+	<div class="offcanvas-header mb-0">
 		<h5 class="offcanvas-title" id="theme-selector-title">Theme Selector</h5>
 		<button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
 	</div>
 	<div class="offcanvas-body">
+		<p class="text-center">If we can do anything to make the website more accessible for you, please <a href="{% url 'contact' %}">contact us</a>.</p>
 		<div class="row text-center">
 			<div class="col-sm-6 mb-3 mb-sm-0">
 				<p>
@@ -238,7 +239,6 @@
 					<button type="button" class="btn" data-cb-theme-value="off">Off</button>
 					<button type="button" class="btn" data-cb-theme-value="orange">Orange</button>
 				</div>
-				<p>If we can do anything to make the website more accessible for you, please <a href="{% url 'contact' %}">contact us</a>.</p>
 			</div>
 		</div>
 	</div>
