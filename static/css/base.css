@@ -138,6 +138,10 @@ td:has(> a.clickable-cell) {
     text-transform: capitalize;
 }
 
+.cb-label {
+    text-transform: capitalize;
+}
+
 a.codelink {
     color: var(--bs-code-color);
     text-decoration-color: var(--bs-code-color);
