@@ -11,6 +11,7 @@
 	<meta name="author" content="">
 	<link rel="icon" type="image/png" href="{% static 'images/favicon.png' %}">
 	<script src="{% static "js/light_dark_mode.js" %}"></script>
+	<script src="{% static "js/colourblind_mode.js" %}"></script>
 	{% block css %}
 		<!-- Bootstrap CSS -->
 		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" 
@@ -174,8 +175,7 @@
 	<div class="px-3 d-flex justify-content-between">
 		<span class="text-muted">Unigames is an affiliated club of the UWA Student Guild.</span>
 		<span class="text-muted">
-			Theme: <span class="theme-label"></span>
-			<a data-bs-toggle="offcanvas" href="#offcanvas-theme-selector" role="button">(Change Theme)</a>
+			<a data-bs-toggle="offcanvas" href="#offcanvas-theme-selector" role="button" class="btn btn-secondary btn-sm">Change Theme</a>
 		</span>
 	</div>
 </footer>
@@ -212,21 +212,35 @@
 
 
 <div class="offcanvas offcanvas-bottom" id="offcanvas-theme-selector" aria-labelledby="theme-selector-title">
-	<div class="offcanvas-header">
+	<div class="offcanvas-header mb-0">
 		<h5 class="offcanvas-title" id="theme-selector-title">Theme Selector</h5>
 		<button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
 	</div>
 	<div class="offcanvas-body">
-		<p>Note: Themes are a WIP, and some elements may not render correctly in Dark Mode.</p>
-		<p>
-			Current theme: <span class="theme-label"></span>
-			<br />
-			<div id="theme-buttons">
-				<button type="button" class="btn" data-theme-value="light">Light</button>
-				<button type="button" class="btn" data-theme-value="dark">Dark</button>
-				<button type="button" class="btn" data-theme-value="auto">Auto</button>
+		<p class="text-center">If we can do anything to make the website more accessible for you, please <a href="{% url 'contact' %}">contact us</a>.</p>
+		<div class="row text-center">
+			<div class="col-sm-6 mb-3 mb-sm-0">
+				<p>
+					Current theme: <span class="theme-label"></span>
+				</p>
+				<div id="theme-buttons">
+					<button type="button" class="btn" data-theme-value="light">Light</button>
+					<button type="button" class="btn" data-theme-value="dark">Dark</button>
+					<button type="button" class="btn" data-theme-value="auto">Auto</button>
+				</div>
 			</div>
-		</p>
+			<div class="col-sm-6">
+				<p>
+					Colourblind mode: <span class="cb-label"></span>
+					<br />
+					(This changes the colour of hyperlinks.)
+				</p>
+				<div id="cb-buttons">
+					<button type="button" class="btn" data-cb-theme-value="off">Off</button>
+					<button type="button" class="btn" data-cb-theme-value="orange">Orange</button>
+				</div>
+			</div>
+		</div>
 	</div>
 </div>
 
