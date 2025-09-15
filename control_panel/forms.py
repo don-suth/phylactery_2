@@ -740,6 +740,7 @@ class BaseRedisSettingsForm(ControlPanelForm):
 				- The field type dict (REDIS_SETTINGS_KEY:types), which stores the data type of each key
 					- Valid types: string, colour, boolean
 				- The help text dict (REDIS_SETTINGS_KEY:help), which stores the help text for each key.
+				- The display text dict (REDIS_SETTINGS_KEY:display), which stores the display label for the key.
 			3) For each key in that dict, check the current value of it:
 				a) If it's a string, create a charfield
 				b) If it's a colour, create a colour field.
@@ -754,15 +755,17 @@ class BaseRedisSettingsForm(ControlPanelForm):
 		key_values_dict = self.redis_connection.hgetall(self.REDIS_SETTINGS_KEY)
 		key_types_dict = self.redis_connection.hgetall(f"{self.REDIS_SETTINGS_KEY}:types")
 		key_help_dict = self.redis_connection.hgetall(f"{self.REDIS_SETTINGS_KEY}:help")
+		key_display_dict = self.redis_connection.hgetall(f"{self.REDIS_SETTINGS_KEY}:display")
 		self.setting_fields = []
 		for key, value in key_values_dict.items():
 			key_type = key_types_dict[key]
 			key_help = key_help_dict[key]
+			key_display = key_display_dict[key]
 			match key_type:
 				case "string":
 					self.setting_fields.append(key)
 					self.fields[key] = forms.CharField(
-						label=key,
+						label=key_display,
 						help_text=key_help,
 						initial=value,
 						required=True,
@@ -776,7 +779,7 @@ class BaseRedisSettingsForm(ControlPanelForm):
 				case "colour":
 					self.setting_fields.append(key)
 					self.fields[key] = forms.CharField(
-						label=key,
+						label=key_display,
 						help_text=key_help,
 						initial=value,
 						required=True,
@@ -791,7 +794,7 @@ class BaseRedisSettingsForm(ControlPanelForm):
 				case "boolean":
 					self.setting_fields.append(key)
 					self.fields[key] = forms.BooleanField(
-						label=key,
+						label=key_display,
 						help_text=key_help,
 						initial=bool(int(value)),
 						required=False,
@@ -807,9 +810,9 @@ class BaseRedisSettingsForm(ControlPanelForm):
 					# This may change in the future.
 					self.setting_fields.append(key)
 					self.fields[key] = forms.IntegerField(
-						label=key,
+						label=key_display,
 						help_text=key_help,
-						initial=value,
+						initial=int(value),
 						required=True,
 						min_value=1,
 						max_value=100,
@@ -886,7 +889,55 @@ class InitialiseRedisSettingsForm(ControlPanelForm):
 	
 	def submit(self, request):
 		if self.is_valid():
-			pass
+			"""
+			lich:settings
+				- Nothing at the moment
+			clock:settings
+				- brightness (int)
+				- colour (colour)
+				- seconds_flashing (bool)
+			"""
+			settings_to_initialise = {
+				"clock:settings": [
+					(
+						"brightness",
+						"Clock Brightness",
+						"The brightness of the clock, from 1-100",
+						"int",
+						"50",
+					),
+					(
+						"colour",
+						"Clock Colour",
+						"The colour of the clock.",
+						"colour",
+						"rgb(255, 255, 0)",
+					),
+					(
+						"seconds_flashing",
+						"Seconds Indicator",
+						"Whether the seconds indicator should flash or not.",
+						"boolean",
+						"1",
+					)
+				]
+			}
+			redis_connection = redis.Redis(host=settings.REDIS_HOST, port=6379, decode_responses=True)
+			for settings_key, key_data in settings_to_initialise.items():
+				types_key = f"{settings_key}:types"
+				help_key = f"{settings_key}:help"
+				display_key = f"{settings_key}:display"
+				redis_connection.delete(settings_key, types_key, help_key, display_key)
+				for key_name, key_display, key_help, key_type, key_value in key_data:
+					# Set value in main hash
+					redis_connection.hset(settings_key, key_name, key_value)
+					# Set type
+					redis_connection.hset(types_key, key_name, key_type)
+					# Set help
+					redis_connection.hset(help_key, key_name, key_help)
+					# Set display
+					redis_connection.hset(display_key, key_name, key_display)
+			messages.success(request, f"Initialised {settings_to_initialise.keys()}")
 	
 
 FORM_CLASSES = {}
@@ -898,6 +949,7 @@ for form_class in (
 	AddRemoveRanksForm,
 	CommitteeTransferForm,
 	GetMembershipInfoForm,
-	DiscordSettingsForm,
+	ClockSettingsForm,
+	InitialiseRedisSettingsForm,
 ):
 	FORM_CLASSES[slugify(form_class.form_name)] = form_class
