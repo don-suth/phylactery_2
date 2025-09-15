@@ -744,7 +744,8 @@ class BaseRedisSettingsForm(ControlPanelForm):
 				a) If it's a string, create a charfield
 				b) If it's a colour, create a colour field.
 				c) If it's a bool, create a choice field.
-				d) Otherwise, don't create one (maybe display a warning?)
+				d) If it's an int, create an integer field.
+				e) Otherwise, don't create one (maybe display a warning?)
 			4) Set the initial value of that field to the value of the key.
 		"""
 		super().__init__(*args, skip_layout=True, **kwargs)
@@ -794,6 +795,24 @@ class BaseRedisSettingsForm(ControlPanelForm):
 						help_text=key_help,
 						initial=bool(int(value)),
 						required=False,
+					)
+					self.helper.layout.append(
+						Field(
+							key,
+							wrapper_class="font-monospace"
+						)
+					)
+				case "int":
+					# Currently, we assume min=1, max=100.
+					# This may change in the future.
+					self.setting_fields.append(key)
+					self.fields[key] = forms.IntegerField(
+						label=key,
+						help_text=key_help,
+						initial=value,
+						required=True,
+						min_value=1,
+						max_value=100,
 					)
 					self.helper.layout.append(
 						Field(
