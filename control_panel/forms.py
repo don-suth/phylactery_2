@@ -805,6 +805,11 @@ class BaseRedisSettingsForm(ControlPanelForm):
 				
 			
 	def submit(self, request):
+		"""
+		On submitting:
+			- Update each changed key in redis
+			- If any keys were changed, ping a pubsub channel of the same name
+		"""
 		self.clean()
 		if self.is_valid():
 			change_messages = []
@@ -818,6 +823,7 @@ class BaseRedisSettingsForm(ControlPanelForm):
 					change_messages.append(f"Set key `{field_name}` to value '{cleaned_field_data}'")
 			if change_messages:
 				messages.success(request, "\n".join(change_messages))
+				self.redis_connection.publish(self.REDIS_SETTINGS_KEY, "updated")
 
 
 class DiscordSettingsForm(BaseRedisSettingsForm):
