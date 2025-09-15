@@ -837,7 +837,19 @@ class DiscordSettingsForm(BaseRedisSettingsForm):
 	]
 	
 	REDIS_SETTINGS_KEY = "lich:settings"
+
+
+class ClockSettingsForm(BaseRedisSettingsForm):
+	form_name = "Clock Settings"
+	form_short_description = "Change the appearance of the clock."
+	form_long_description = (
+		"Change the brightness and colour of the clock, and also whether the seconds indicator flashes."
+	)
+	form_allowed_ranks = [
+		RankChoices.SUPERUSER,
+	]
 	
+	REDIS_SETTINGS_KEY = "clock:settings"
 	
 
 FORM_CLASSES = {}
