@@ -331,6 +331,21 @@ class ChangeEmailPreferencesForm(forms.Form):
 					self.member.mailing_lists.remove(pk)
 
 
+class ToggleSuperuserForm(forms.Form):
+	confirmation = forms.BooleanField(
+		required=True,
+		label="I confirm I have read the above"
+	)
+	
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
+		self.helper = FormHelper()
+		self.helper.form_tag = False
+		self.helper.layout = Layout(
+			"confirmation",
+		)
+
+
 class AddFinanceRecordForm(forms.Form):
 	member = forms.ModelChoiceField(
 		queryset=Member.objects.all(),

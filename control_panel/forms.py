@@ -16,17 +16,21 @@ import csv
 import redis
 
 
-def expire_active_ranks(rank_to_expire, rank_to_exclude):
+def expire_active_ranks(rank_to_expire, rank_to_exclude, delete=False):
 	"""
 	Finds all ranks of the chosen type that are still active, and expires them.
 	Ignores all ranks belonging to members that also have rank_to_exclude.
 	Returns the names of Members with Ranks expired this way.
+	If delete = True, then deletes the ranks rather than expiring them.
 	"""
 	members_to_exclude = Rank.objects.all_active().filter(rank_name=rank_to_exclude).values_list("member", flat=True)
 	ranks_to_expire = Rank.objects.all_active().filter(rank_name=rank_to_expire).exclude(member__in=members_to_exclude)
 	expired_members = list(ranks_to_expire.values_list("member__long_name", flat=True))
-	for rank in ranks_to_expire:
-		rank.set_expired()
+	if delete:
+		ranks_to_expire.delete()
+	else:
+		for rank in ranks_to_expire:
+			rank.set_expired()
 	return expired_members
 
 
@@ -104,7 +108,7 @@ class GatekeeperWebkeeperPurgeForm(ControlPanelForm):
 		RankChoices.PRESIDENT,
 		RankChoices.VICEPRESIDENT,
 		RankChoices.SECRETARY,
-		RankChoices.WEBKEEPER,
+		RankChoices.SUPERUSER,
 	]
 	
 	CHOICES = (
@@ -149,6 +153,11 @@ class GatekeeperWebkeeperPurgeForm(ControlPanelForm):
 					rank_to_expire=RankChoices.WEBKEEPER,
 					rank_to_exclude=RankChoices.COMMITTEE
 				)
+				purged_superusers = expire_active_ranks(
+					rank_to_expire=RankChoices.SUPERUSER,
+					rank_to_exclude=RankChoices.COMMITTEE,
+					delete=True,
+				)
 				if len(purged_web) > 0:
 					messages.success(
 						request,
@@ -169,7 +178,7 @@ class ExpireMembershipsForm(ControlPanelForm):
 		RankChoices.PRESIDENT,
 		RankChoices.VICEPRESIDENT,
 		RankChoices.SECRETARY,
-		RankChoices.WEBKEEPER,
+		RankChoices.SUPERUSER,
 	]
 	
 	cut_off_date = forms.DateField(
@@ -220,7 +229,7 @@ class MakeGatekeepersForm(ControlPanelForm):
 		RankChoices.PRESIDENT,
 		RankChoices.VICEPRESIDENT,
 		RankChoices.SECRETARY,
-		RankChoices.WEBKEEPER,
+		RankChoices.SUPERUSER,
 	]
 	form_include_media = False
 	
@@ -244,7 +253,7 @@ class MakeGatekeepersForm(ControlPanelForm):
 			already_gatekeepers = []
 			success_gatekeepers = []
 			for member in self.cleaned_data["gatekeepers_to_add"]:
-				if member.is_gatekeeper():
+				if member.has_rank(RankChoices.GATEKEEPER):
 					already_gatekeepers.append(member.long_name)
 				else:
 					member.add_rank(RankChoices.GATEKEEPER)
@@ -270,7 +279,7 @@ class MakeWebkeepersForm(ControlPanelForm):
 		RankChoices.PRESIDENT,
 		RankChoices.VICEPRESIDENT,
 		RankChoices.SECRETARY,
-		RankChoices.WEBKEEPER,
+		RankChoices.SUPERUSER,
 	]
 	form_include_media = False
 	
@@ -327,7 +336,7 @@ class AddRemoveRanksForm(ControlPanelForm):
 		RankChoices.PRESIDENT,
 		RankChoices.VICEPRESIDENT,
 		RankChoices.SECRETARY,
-		RankChoices.WEBKEEPER,
+		RankChoices.SUPERUSER,
 	]
 	form_include_media = False
 	
@@ -406,7 +415,7 @@ class CommitteeTransferForm(ControlPanelForm):
 	form_allowed_ranks = [
 		RankChoices.PRESIDENT,
 		RankChoices.VICEPRESIDENT,
-		RankChoices.WEBKEEPER,
+		RankChoices.SUPERUSER,
 	]
 	form_include_media = False
 	
@@ -660,7 +669,7 @@ class GetMembershipInfoForm(ControlPanelForm):
 	)
 	form_allowed_ranks = [
 		RankChoices.COMMITTEE,
-		RankChoices.WEBKEEPER,
+		RankChoices.SUPERUSER,
 	]
 	
 	membership_date = forms.DateField(

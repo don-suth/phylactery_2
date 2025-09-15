@@ -1,0 +1,42 @@
+{% extends "_base.html" %}
+
+{% block title %}Gatekeeper List{% endblock %}
+
+{% block content %}
+	<h3>Gatekeeper List</h3>
+	<p>This is the list of current Gatekeepers!</p>
+	<form method="get">
+		<label for="member-search" class="form-label">Search Gatekeepers</label>
+		<div class="input-group mb-3">
+			<input id="member-search"
+				   type="text"
+				   name="search"
+				   class="form-control"
+				   placeholder="Search names"
+				   {% if search_query %}
+				   		value="{{ search_query }}"
+				   {% endif %}
+			>
+			<button type="submit" class="btn btn-outline-primary">Search</button>
+			<a class="btn btn-outline-danger" href="?">Reset</a>
+		</div>
+	</form>
+	{% if object_list %}
+		<table class="table table-hover table-bordered">
+			<thead>
+				<tr>
+					<th>Long Name</th>
+				</tr>
+			</thead>
+			<tbody class="table-group-divider">
+				{% for member in object_list %}
+					<tr>
+						<td>
+							<a href="{% url "members:profile" pk=member.pk %}" class="clickable-cell link-underline link-underline-opacity-0">{{ member.long_name }}</a>
+						</td>
+					</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	{% endif %}
+{% endblock %}
