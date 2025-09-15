@@ -828,10 +828,7 @@ class DiscordSettingsForm(BaseRedisSettingsForm):
 		"You shouldn't need to adjust these settings too often."
 	)
 	form_allowed_ranks = [
-		RankChoices.PRESIDENT,
-		RankChoices.VICEPRESIDENT,
-		RankChoices.SECRETARY,
-		RankChoices.WEBKEEPER,
+		RankChoices.SUPERUSER,
 	]
 	
 	REDIS_SETTINGS_KEY = "lich:settings"
