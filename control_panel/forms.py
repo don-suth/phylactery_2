@@ -871,6 +871,24 @@ class ClockSettingsForm(BaseRedisSettingsForm):
 	REDIS_SETTINGS_KEY = "clock:settings"
 	
 
+class InitialiseRedisSettingsForm(ControlPanelForm):
+	form_name = "Initialise Redis Settings"
+	form_short_description = "Initialises and RESETS Redis settings to their default values."
+	form_long_description = (
+		"RESETS all Redis setting data and initialises Redis data stores. Do not use unless you know what you're doing."
+	)
+	form_allowed_ranks = [
+		RankChoices.SUPERUSER,
+	]
+	
+	def get_layout(self):
+		return Layout()
+	
+	def submit(self, request):
+		if self.is_valid():
+			pass
+	
+
 FORM_CLASSES = {}
 for form_class in (
 	GatekeeperWebkeeperPurgeForm,
