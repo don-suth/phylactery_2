@@ -21,6 +21,7 @@
 			<a class="btn btn-outline-danger" href="?">Reset</a>
 		</div>
 	</form>
+	{% include "phylactery/snippets/pagination_snippet.html" %}
 	{% if object_list %}
 		<table class="table table-hover table-bordered">
 			<thead>
@@ -39,4 +40,5 @@
 			</tbody>
 		</table>
 	{% endif %}
+	{% include "phylactery/snippets/pagination_snippet.html" %}
 {% endblock %}
