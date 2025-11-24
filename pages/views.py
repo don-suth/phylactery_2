@@ -1,6 +1,6 @@
 from members.models import Rank
 from django.conf import settings
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, RedirectView
 from django.utils import timezone
 from blog.models import BlogPost
 from library.models import Item
@@ -52,6 +52,7 @@ class ConstitutionView(TemplateView):
 
 	
 class WebcamsView(TemplateView):
+	# Deprecated. URL will now redirect to DoorView.
 	template_name = "pages/webcams.html"
 
 
