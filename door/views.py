@@ -18,8 +18,10 @@ class DoorStatusView(TemplateView):
 @method_decorator(gatekeeper_required, name="dispatch")
 class OpenDoorFormView(FormView):
 	form_class = OpenCloseDoorForm
+	template_name = "door/open_door_form.html"
 
 
 @method_decorator(gatekeeper_required, name="dispatch")
 class CloseDoorFormView(FormView):
 	form_class = OpenCloseDoorForm
+	template_name = "door/close_door_form.html"

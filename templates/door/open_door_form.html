@@ -1,0 +1,23 @@
+{% extends "_base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}Open Door{% endblock %}
+
+{% block content %}
+	<div class="card w-100 border-success">
+		<h2 class="card-header text-center border-success">You are about to signal that Unigames is Open!</h2>
+		<div class="card-body">
+			<p class="card-text">
+				Please don't do this unless you are now physically in the room, having just opened it.
+			</p>
+			<form method="POST" action="">
+				<p class="card-text">
+					{% crispy form %}
+					<a class="btn btn-secondary" href="{% url 'door:status' %}">Go Back</a>
+					<button class="btn btn-success float-end" type="submit">Open Unigames</button>
+				</p>
+			</form>
+		</div>
+	</div>
+
+{% endblock %}

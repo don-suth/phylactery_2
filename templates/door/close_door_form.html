@@ -1,0 +1,23 @@
+{% extends "_base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}Close Door{% endblock %}
+
+{% block content %}
+	<div class="card w-100 border-danger">
+		<h2 class="card-header text-center border-danger">You are about to signal that Unigames is Closed!</h2>
+		<div class="card-body">
+			<p class="card-text">
+				Please don't do this unless you are 100% sure the room is now closed.
+			</p>
+			<form method="POST" action="">
+				<p class="card-text">
+					{% crispy form %}
+					<a class="btn btn-secondary" href="{% url 'door:status' %}">Go Back</a>
+					<button class="btn btn-danger float-end" type="submit">Close Unigames</button>
+				</p>
+			</form>
+		</div>
+	</div>
+
+{% endblock %}
