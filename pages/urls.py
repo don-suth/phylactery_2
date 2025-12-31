@@ -2,8 +2,7 @@ from django.urls import path
 
 from .views import (
 	HomePageView, AboutPageView, EventsPageView, RolePlayingPageView,
-	CommitteeView, LifeMemberView, ContactView, ConstitutionView, WebcamsView, APIView, RegulationsView, MinutesView,
-	DoorView
+	CommitteeView, LifeMemberView, ContactView, ConstitutionView, WebcamsView, APIView, RegulationsView, MinutesView
 )
 
 urlpatterns = [
