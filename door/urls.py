@@ -1,8 +1,8 @@
 from django.urls import path
 
-from .views import DoorView
+from .views import DoorStatusView
 
 app_name = "door"
 urlpatterns = [
-	path("", DoorView.as_view(), name="status"),
+	path("", DoorStatusView.as_view(), name="status"),
 ]

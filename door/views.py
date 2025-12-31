@@ -6,7 +6,7 @@ from door.forms import OpenCloseDoorForm
 from door.utils import get_door_status
 
 
-class DoorView(TemplateView):
+class DoorStatusView(TemplateView):
 	template_name = "pages/door.html"
 	
 	def get_context_data(self, **kwargs):
