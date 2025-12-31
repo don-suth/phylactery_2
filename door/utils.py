@@ -24,6 +24,7 @@ def redis_open_door():
 			- member id
 			- member name
 			- source (phylactery/lich)
+	# TODO: Change the redis keys to come from settings rather than being hardcoded.
 	"""
 	pass
 
@@ -39,5 +40,6 @@ def redis_close_door():
 			- member id
 			- member name
 			- source (phylactery/lich)
+	# TODO: Change the redis keys to come from settings rather than being hardcoded.
 	"""
 	pass
