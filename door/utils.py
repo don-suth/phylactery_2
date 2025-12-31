@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.utils import timezone
 import redis
 
 
@@ -12,7 +13,7 @@ def get_door_status():
 	return door_status
 
 
-def redis_open_door():
+def redis_open_door(member_id, member_name):
 	"""
 	Updates Redis to open the Door.
 	This involves:
@@ -26,9 +27,20 @@ def redis_open_door():
 			- source (phylactery/lich)
 	# TODO: Change the redis keys to come from settings rather than being hardcoded.
 	"""
-	pass
+	redis_connection = redis.Redis(host=settings.REDIS_HOST, port=6379, decode_responses=True)
+	pipe = redis_connection.pipeline()
+	pipe.set("door:status", "OPEN")
+	pipe.xadd("door:stream", {
+		"timestamp": timezone.now().timestamp(),
+		"new_status": "OPEN",
+		"member_id": member_id,
+		"member_name": member_name,
+		"source": "phylactery"
+	})
+	pipe.publish("door:updates", "OPEN")
+	pipe.execute()
 
-def redis_close_door():
+def redis_close_door(member_id, member_name):
 	"""
 	Updates Redis to close the Door.
 	This involves:
@@ -42,4 +54,18 @@ def redis_close_door():
 			- source (phylactery/lich)
 	# TODO: Change the redis keys to come from settings rather than being hardcoded.
 	"""
-	pass
+	redis_connection = redis.Redis(host=settings.REDIS_HOST, port=6379, decode_responses=True)
+	pipe = redis_connection.pipeline()
+	pipe.set("door:status", "OPEN")
+	pipe.xadd(
+		"door:stream", {
+			"timestamp": timezone.now().timestamp(),
+			"new_status": "OPEN",
+			"member_id": member_id,
+			"member_name": member_name,
+			"source": "phylactery"
+		}
+	)
+	pipe.publish("door:updates", "OPEN")
+	pipe.execute()
+	
