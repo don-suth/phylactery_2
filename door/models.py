@@ -28,7 +28,9 @@ class DoorEvent(models.Model):
 		null=True,
 		blank=True
 	)
-	notes = models.JSONField()
+	notes = models.JSONField(
+		default=dict,
+	)
 	
 	def __str__(self):
 		return f"{self.event_time} - {self.event_type}"
