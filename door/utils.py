@@ -60,7 +60,7 @@ def redis_close_door(member_id, member_name):
 	pipe.xadd(
 		"door:stream", {
 			"timestamp": timezone.now().timestamp(),
-			"new_status": "OPEN",
+			"new_status": "CLOSED",
 			"member_id": member_id,
 			"member_name": member_name,
 			"source": "phylactery"
