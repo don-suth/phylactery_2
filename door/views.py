@@ -1,6 +1,9 @@
-from django.conf import settings
-from django.views.generic import TemplateView
-import redis
+from django.utils.decorators import method_decorator
+from django.views.generic import TemplateView, FormView
+
+from members.decorators import gatekeeper_required
+from door.forms import OpenCloseDoorForm
+from door.utils import get_door_status
 
 
 class DoorView(TemplateView):
@@ -8,7 +11,15 @@ class DoorView(TemplateView):
 	
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)
-		redis_connection = redis.Redis(host=settings.REDIS_HOST, port=6379, decode_responses=True)
-		door_status = redis_connection.get("door:status")
-		context["door_status"] = door_status
+		context["door_status"] = get_door_status()
 		return context
+
+
+@method_decorator(gatekeeper_required, name="dispatch")
+class OpenDoorFormView(FormView):
+	form_class = OpenCloseDoorForm
+
+
+@method_decorator(gatekeeper_required, name="dispatch")
+class CloseDoorFormView(FormView):
+	form_class = OpenCloseDoorForm
