@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils import timezone
 
+
 class EventChoices(models.TextChoices):
 	OPENED = "OPENED", "Door Opened"
 	CLOSED = "CLOSED", "Door Closed"
