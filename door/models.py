@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 
 class EventChoices(models.TextChoices):
 	OPENED = "OPENED", "Door Opened"
@@ -33,4 +34,4 @@ class DoorEvent(models.Model):
 	)
 	
 	def __str__(self):
-		return f"{self.event_time} - {self.event_type}"
+		return f"{timezone.localtime(self.event_time):%Y-%m-%d %H:%M:%S} - {self.event_type}"
