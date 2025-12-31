@@ -11,7 +11,7 @@ logger = get_task_logger(__name__)
 def check_discord_account_links_task():
 	"""
 	Iterates through every Discord account linked to Unigames,
-	checks if they are a valid member.
+	checks if they are a valid member and a Gatekeeper.
 	If they are, update their entry in the Redis dict.
 	If they aren't, remove them from the Redis dict.
 	
@@ -25,9 +25,14 @@ def check_discord_account_links_task():
 			member = social_account.user.member
 			if member.is_valid_member():
 				r.hset("lich:linked_accounts", social_account.uid, member.short_name)
+				if member.is_gatekeeper() or member.is_potential_superuser():
+					# Potential Superusers get added as well,
+					# since they will rarely have superuser status when this is run.
+					r.hset("lich:linked_accounts:gatekeepers", social_account.uid, member.short_name)
 				updated += 1
 			else:
 				r.hdel("lich:linked_accounts", social_account.uid)
+				r.hdel("lich:linked_accounts:gatekeepers", social_account.uid)
 				removed += 1
 	logger.info(f"Updated Discord permissions for {updated} members. Removed permissions for {removed} members.")
 	
