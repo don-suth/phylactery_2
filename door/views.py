@@ -7,7 +7,7 @@ from door.utils import get_door_status
 
 
 class DoorStatusView(TemplateView):
-	template_name = "pages/door.html"
+	template_name = "door/door_status.html"
 	
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)
