@@ -48,6 +48,7 @@ INSTALLED_APPS = [
 	"library",
 	"members",
 	"blog",
+	"door",
 	"phylactery",
 ]
 
