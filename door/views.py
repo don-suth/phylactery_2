@@ -11,7 +11,7 @@ class DoorStatusView(TemplateView):
 	
 	def get_context_data(self, **kwargs):
 		context = super().get_context_data(**kwargs)
-		context["door_status"] = get_door_status()
+		context["door_status"], context["door_datetime"], context["door_display_name"] = get_door_status()
 		return context
 
 

@@ -1,16 +1,23 @@
 from django.conf import settings
 from django.utils import timezone
+import datetime
 import redis
 
 
 def get_door_status():
 	"""
-	Returns the status of the Door from Redis.
+	Gets and returns the following information from redis:
+		- the current door status (either "OPEN" or "CLOSED")
+		- when the door was last opened/closed (as a timezone aware datetime object)
+		- who last opened/closed the door (string)
 	"""
 	redis_connection = redis.Redis(host=settings.REDIS_HOST, port=6379, decode_responses=True)
 	# TODO: Change the redis key to come from settings rather than being hardcoded.
-	door_status = redis_connection.get("door:status")
-	return door_status
+	door_status, door_timestamp, door_display_name = redis_connection.mget(
+		["door:status", "door:timestamp", "door:display_name"]
+	)
+	door_datetime = datetime.datetime.fromtimestamp(float(door_timestamp), datetime.timezone.utc)
+	return door_status, door_datetime, door_display_name
 
 
 def redis_open_door(member_id, display_name):
