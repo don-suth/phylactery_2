@@ -8,17 +8,51 @@
 		<div class="col-xs-12 col-sm-2 col-md-3 col-lg-3 col-xl-4"></div>
 		<div class="col-xs-12 col-sm-8 col-md-6 col-lg-6 col-xl-4">
 			{% if door_status == "OPEN" %}
-				<h2>The room is open!</h2>
-				<img src="{% static "images/misc/unigames_open.png" %}" alt="The room is open!" class="img-fluid">
+				<div class="card border-success">
+					<h2 class="card-header">The room is open!</h2>
+					<img class="img-fluid" src="{% static "images/misc/unigames_open.png" %}" alt="The room is open!">
+					<div class="card-body">
+							<p class="card-text">
+								Room opened by
+								{% if user.is_authenticated %}
+									{{ door_display_name }} <br>
+								{% else %}
+									a gatekeeper <br>
+								{% endif %}
+								{{ door_datetime|timesince }} ago <br>
+								at {{ door_datetime|time:"g:HA" }} on the {{ door_datetime|date:"jS M Y" }}
+							</p>
+						</div>
+				</div>
 			{% elif door_status == "CLOSED" %}
-				<h2>The room is closed. :-(</h2>
-				<img src="{% static "images/misc/unigames_closed.png" %}" alt="The room is closed" class="img-fluid">
+				<div class="card border-danger">
+					<h2 class="card-header">The room is closed!</h2>
+					<img class="img-fluid" src="{% static "images/misc/unigames_closed.png" %}" alt="The room is closed">
+					<div class="card-body">
+							<p class="card-text">
+								Room closed by
+								{% if user.is_authenticated %}
+									{{ door_display_name }} <br>
+								{% else %}
+									a gatekeeper <br>
+								{% endif %}
+								{{ door_datetime|timesince }} ago <br>
+								at {{ door_datetime|time:"g:HA" }} on the {{ door_datetime|date:"jS M Y" }}
+							</p>
+						</div>
+				</div>
 			{% else %}
-				<h2>Whoops!</h2>
-				<p>
-					Something must be broken; We can't tell if the room is open or closed. Sorry! <br />
-					Check back again later.
-				</p>
+				<div class="card">
+					<h2 class="card-header">Whoops!</h2>
+					<div class="card-body">
+							<p class="card-text">
+								Something must be broken; We can't tell if the room is open or closed. Sorry!
+							</p>
+							<p class="card-text">
+								Check back again later.
+							</p>
+						</div>
+				</div>
 			{% endif %}
 		</div>
 		<div class="col-xs-12 col-sm-2 col-md-3 col-lg-3 col-xl-4"></div>
