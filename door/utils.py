@@ -17,7 +17,10 @@ def redis_open_door(member_id, display_name):
 	"""
 	Updates Redis to open the Door.
 	This involves:
-		1) Changing the status of the "door:status" key.
+		1) Changing the status of the following keys:
+			- "door:status"
+			- "door:timestamp"
+			- "door:display_name"
 		2) Publishing the status on the Pubsub channel "door:updates".
 		3) Adding an entry to the Redis stream with:
 			- timestamp
@@ -48,7 +51,10 @@ def redis_close_door(member_id, display_name):
 	"""
 	Updates Redis to close the Door.
 	This involves:
-		1) Changing the status of the "door:status" key.
+		1) Changing the status of the following keys:
+			- "door:status"
+			- "door:timestamp"
+			- "door:display_name"
 		2) Publishing the status on the Pubsub channel "door:updates".
 		3) Adding an entry to the Redis stream with:
 			- timestamp
