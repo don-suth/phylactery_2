@@ -57,7 +57,7 @@ def redis_close_door(member_id, member_name):
 	"""
 	redis_connection = redis.Redis(host=settings.REDIS_HOST, port=6379, decode_responses=True)
 	pipe = redis_connection.pipeline()
-	pipe.set("door:status", "OPEN")
+	pipe.set("door:status", "CLOSED")
 	pipe.xadd(
 		"door:stream", {
 			"timestamp": timezone.now().timestamp(),
@@ -68,6 +68,6 @@ def redis_close_door(member_id, member_name):
 			"source": "phylactery"
 		}
 	)
-	pipe.publish("door:updates", "OPEN")
+	pipe.publish("door:updates", "CLOSED")
 	pipe.execute()
 	
