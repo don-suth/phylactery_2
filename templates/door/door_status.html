@@ -54,6 +54,32 @@
 						</div>
 				</div>
 			{% endif %}
+		{% if user.is_authenticated and user.member.is_gatekeeper %}
+			<div class="card mt-5">
+				<h2 class="card-header">Change Door Status</h2>
+				<div class="card-body">
+					<p class="card-text">You're a gatekeeper - want to open or close the room?</p>
+					{% if door_status == "OPEN" %}
+						<p class="card-text"><a href="{% url 'door:close' %}" class="btn btn-danger btn-lg">I want to CLOSE the room</a></p>
+						<p class="card-text">or</p>
+						<p class="card-text">
+							I know the room's already open but <br>
+							<a href="{% url 'door:open' %}" class="btn btn-success">I want to RE-OPEN the room</a>
+						</p>
+					{% elif door_status == "CLOSED" %}
+						<p class="card-text"><a href="{% url 'door:open' %}" class="btn btn-success btn-lg">I want to OPEN the room</a></p>
+						<p class="card-text">or</p>
+						<p class="card-text">
+							I know the room's already closed but <br>
+							<a href="{% url 'door:close' %}" class="btn btn-danger">I want to RE-CLOSE the room</a>
+						</p>
+					{% else %}
+						<p class="card-text"><a href="{% url 'door:open' %}" class="btn btn-success btn-lg">I want to OPEN the room</a></p>
+						<p class="card-text"><a href="{% url 'door:close' %}" class="btn btn-danger btn-lg">I want to CLOSE the room</a></p>
+					{% endif %}
+				</div>
+			</div>
+		{% endif %}
 		</div>
 		<div class="col-xs-12 col-sm-2 col-md-3 col-lg-3 col-xl-4"></div>
 	</div>
