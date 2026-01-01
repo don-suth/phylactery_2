@@ -5,11 +5,18 @@
 
 {% block content %}
 	<div class="card w-100 border-success">
-		<h2 class="card-header text-center border-success">You are about to signal that Unigames is Open!</h2>
+		<h2 class="card-header text-center border-success">You are about to signal that <br>Unigames is Open!</h2>
 		<div class="card-body">
 			<p class="card-text">
 				Please don't do this unless you are now physically in the room, having just opened it.
 			</p>
+			<p class="card-text">The following things will occur:</p>
+			<ul>
+				<li>The Unigames website will show that the clubroom is open.</li>
+				<li>A notification will be sent to the Unigames discord.</li>
+				<li>Any Unigames members and/or people in the Unigames Discord will be able to see that you've opened the room.</li>
+				<li>Anyone who is not a Unigames member or is not in the Discord will be able to see that the room is open, but not who opened it.</li>
+			</ul>
 			<form method="POST" action="">
 				<p class="card-text">
 					{% crispy form %}
