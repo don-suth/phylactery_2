@@ -13,7 +13,7 @@ def get_door_status():
 	return door_status
 
 
-def redis_open_door(member_id, member_name):
+def redis_open_door(member_id, display_name):
 	"""
 	Updates Redis to open the Door.
 	This involves:
@@ -23,7 +23,7 @@ def redis_open_door(member_id, member_name):
 			- timestamp
 			- new status
 			- member id
-			- member name
+			- display name
 			- source (phylactery/lich)
 	# TODO: Change the redis keys to come from settings rather than being hardcoded.
 	"""
@@ -35,13 +35,13 @@ def redis_open_door(member_id, member_name):
 		"new_status": "OPEN",
 		"id_type": "member",
 		"member_id": member_id,
-		"member_name": member_name,
+		"display_name": display_name,
 		"source": "phylactery"
 	})
 	pipe.publish("door:updates", "OPEN")
 	pipe.execute()
 
-def redis_close_door(member_id, member_name):
+def redis_close_door(member_id, display_name):
 	"""
 	Updates Redis to close the Door.
 	This involves:
@@ -51,7 +51,7 @@ def redis_close_door(member_id, member_name):
 			- timestamp
 			- new status
 			- member id
-			- member name
+			- display name
 			- source (phylactery/lich)
 	# TODO: Change the redis keys to come from settings rather than being hardcoded.
 	"""
@@ -64,7 +64,7 @@ def redis_close_door(member_id, member_name):
 			"new_status": "CLOSED",
 			"id_type": "member",
 			"member_id": member_id,
-			"member_name": member_name,
+			"display_name": display_name,
 			"source": "phylactery"
 		}
 	)
