@@ -29,9 +29,12 @@ def redis_open_door(member_id, display_name):
 	"""
 	redis_connection = redis.Redis(host=settings.REDIS_HOST, port=6379, decode_responses=True)
 	pipe = redis_connection.pipeline()
+	timestamp = timezone.now().timestamp()
 	pipe.set("door:status", "OPEN")
+	pipe.set("door:timestamp", timestamp)
+	pipe.set("door:display_name", display_name)
 	pipe.xadd("door:stream", {
-		"timestamp": timezone.now().timestamp(),
+		"timestamp": timestamp,
 		"new_status": "OPEN",
 		"id_type": "member",
 		"member_id": member_id,
@@ -57,10 +60,13 @@ def redis_close_door(member_id, display_name):
 	"""
 	redis_connection = redis.Redis(host=settings.REDIS_HOST, port=6379, decode_responses=True)
 	pipe = redis_connection.pipeline()
+	timestamp = timezone.now().timestamp()
 	pipe.set("door:status", "CLOSED")
+	pipe.set("door:timestamp", timestamp)
+	pipe.set("door:display_name", display_name)
 	pipe.xadd(
 		"door:stream", {
-			"timestamp": timezone.now().timestamp(),
+			"timestamp": timestamp,
 			"new_status": "CLOSED",
 			"id_type": "member",
 			"member_id": member_id,
