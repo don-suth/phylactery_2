@@ -1,0 +1,86 @@
+{% extends "_base.html" %}
+{% load static %}
+
+{% block title %}Door Status{% endblock %}
+
+{% block content %}
+	<div class="row text-center">
+		<div class="col-xs-12 col-sm-2 col-md-3 col-lg-3 col-xl-4"></div>
+		<div class="col-xs-12 col-sm-8 col-md-6 col-lg-6 col-xl-4">
+			{% if door_status == "OPEN" %}
+				<div class="card border-success">
+					<h2 class="card-header">The room is open!</h2>
+					<img class="img-fluid" src="{% static "images/misc/unigames_open.png" %}" alt="The room is open!">
+					<div class="card-body">
+							<p class="card-text">
+								Room opened by
+								{% if user.is_authenticated %}
+									{{ door_display_name }} <br>
+								{% else %}
+									a gatekeeper <br>
+								{% endif %}
+								{{ door_datetime|timesince }} ago <br>
+								at {{ door_datetime|time:"g:iA" }} on the {{ door_datetime|date:"jS M Y" }}
+							</p>
+						</div>
+				</div>
+			{% elif door_status == "CLOSED" %}
+				<div class="card border-danger">
+					<h2 class="card-header">The room is closed!</h2>
+					<img class="img-fluid" src="{% static "images/misc/unigames_closed.png" %}" alt="The room is closed">
+					<div class="card-body">
+							<p class="card-text">
+								Room closed by
+								{% if user.is_authenticated %}
+									{{ door_display_name }} <br>
+								{% else %}
+									a gatekeeper <br>
+								{% endif %}
+								{{ door_datetime|timesince }} ago <br>
+								at {{ door_datetime|time:"g:iA" }} on the {{ door_datetime|date:"jS M Y" }}
+							</p>
+						</div>
+				</div>
+			{% else %}
+				<div class="card">
+					<h2 class="card-header">Whoops!</h2>
+					<div class="card-body">
+							<p class="card-text">
+								Something must be broken; We can't tell if the room is open or closed. Sorry!
+							</p>
+							<p class="card-text">
+								Check back again later.
+							</p>
+						</div>
+				</div>
+			{% endif %}
+		{% if user.is_authenticated and user.member.is_gatekeeper %}
+			<div class="card mt-5">
+				<h2 class="card-header">Change Door Status</h2>
+				<div class="card-body">
+					<p class="card-text">You're a gatekeeper - want to open or close the room?</p>
+					{% if door_status == "OPEN" %}
+						<p class="card-text"><a href="{% url 'door:close' %}" class="btn btn-danger btn-lg">I want to CLOSE the room</a></p>
+						<p class="card-text">or</p>
+						<p class="card-text">
+							I'm opening the room and someone forgot to close it: <br>
+							<a href="{% url 'door:open' %}" class="btn btn-success">I want to RE-OPEN the room</a>
+						</p>
+					{% elif door_status == "CLOSED" %}
+						<p class="card-text"><a href="{% url 'door:open' %}" class="btn btn-success btn-lg">I want to OPEN the room</a></p>
+						<p class="card-text">or</p>
+						<p class="card-text">
+							I'm closing the room and someone forgot to open it: <br>
+							<a href="{% url 'door:close' %}" class="btn btn-danger">I want to RE-CLOSE the room</a>
+						</p>
+					{% else %}
+						<p class="card-text"><a href="{% url 'door:open' %}" class="btn btn-success btn-lg">I want to OPEN the room</a></p>
+						<p class="card-text"><a href="{% url 'door:close' %}" class="btn btn-danger btn-lg">I want to CLOSE the room</a></p>
+					{% endif %}
+				</div>
+			</div>
+		{% endif %}
+		</div>
+		<div class="col-xs-12 col-sm-2 col-md-3 col-lg-3 col-xl-4"></div>
+	</div>
+{% endblock %}
