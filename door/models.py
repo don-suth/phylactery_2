@@ -15,7 +15,7 @@ class DoorEvent(models.Model):
 	event_time = models.DateTimeField()
 	event_type = models.CharField(
 		max_length=6,
-		choices=EventChoices.choices
+		choices=EventChoices,
 	)
 	previous_event = models.OneToOneField(
 		"DoorEvent",
