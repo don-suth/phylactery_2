@@ -25,7 +25,7 @@ def process_door_events():
 		else:
 			new_event_type = EventChoices.OPENED
 			dummy_event_type = EventChoices.CLOSED
-		new_event_time = datetime.fromtimestamp(float(event_data), dt_timezone.utc)
+		new_event_time = datetime.fromtimestamp(float(event_data["timestamp"]), dt_timezone.utc)
 		
 		if most_recent_event is not None and most_recent_event.event_type == new_event_type:
 			# This will occur when two "Door Opened" (or two "Door Closed") events happen consecutively.
