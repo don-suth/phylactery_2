@@ -63,14 +63,14 @@
 						<p class="card-text"><a href="{% url 'door:close' %}" class="btn btn-danger btn-lg">I want to CLOSE the room</a></p>
 						<p class="card-text">or</p>
 						<p class="card-text">
-							I know the room's already open but <br>
+							I'm opening the room and someone forgot to close it: <br>
 							<a href="{% url 'door:open' %}" class="btn btn-success">I want to RE-OPEN the room</a>
 						</p>
 					{% elif door_status == "CLOSED" %}
 						<p class="card-text"><a href="{% url 'door:open' %}" class="btn btn-success btn-lg">I want to OPEN the room</a></p>
 						<p class="card-text">or</p>
 						<p class="card-text">
-							I know the room's already closed but <br>
+							I'm closing the room and someone forgot to open it: <br>
 							<a href="{% url 'door:close' %}" class="btn btn-danger">I want to RE-CLOSE the room</a>
 						</p>
 					{% else %}
