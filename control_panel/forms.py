@@ -785,6 +785,48 @@ class BaseRedisSettingsForm(ControlPanelForm):
 				self.redis_connection.publish(self.update_pubsub_channel, "UPDATED")
 
 
+class ClockSettingsForm(BaseRedisSettingsForm):
+	form_name = "Change Clock Settings"
+	form_short_description = "Change the appearance of the LED clock in Unigames."
+	
+	form_allowed_ranks = [
+		RankChoices.SUPERUSER,
+	]
+	
+	clock_brightness = forms.IntegerField(
+		min_value=1,
+		max_value=100,
+		required=True,
+		label="Clock Brightness",
+		help_text="How bright the clock is. 1 is the lowest, 100 is the highest.",
+	)
+	clock_colour = forms.CharField(
+		required=True,
+		widget=ColorWidget(attrs={"format": "rgb"}),
+		label="Clock Colour",
+		help_text="The colour of the clock. Please don't set this to complete black."
+	)
+	clock_alternate_seconds = forms.BooleanField(
+		required=False,
+		label="Flash Seconds Indicator",
+		help_text="Whether the clock will alternate each second to show the passage of time."
+	)
+	
+	form_fields_to_redis_keys = {
+		"clock_brightness": "clock:brightness",
+		"clock_colour": "clock:colour",
+		"clock_alternate_seconds": "clock:seconds",
+	}
+	update_pubsub_channel = "clock:updates"
+	
+	def get_layout(self):
+		return Layout(
+			"clock_brightness",
+			"clock_colour",
+			"clock_alternate_seconds",
+		)
+
+
 FORM_CLASSES = {}
 for form_class in (
 	GatekeeperWebkeeperPurgeForm,
@@ -794,5 +836,6 @@ for form_class in (
 	AddRemoveRanksForm,
 	CommitteeTransferForm,
 	GetMembershipInfoForm,
+	ClockSettingsForm,
 ):
 	FORM_CLASSES[slugify(form_class.form_name)] = form_class
