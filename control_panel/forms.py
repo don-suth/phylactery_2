@@ -728,217 +728,104 @@ class BaseRedisSettingsForm(ControlPanelForm):
 	"""
 	Base class for redis settings forms.
 	"""
-	REDIS_SETTINGS_KEY = ""
+	form_fields_to_redis_keys = {}
+	update_pubsub_channel = ""
 	
 	def __init__(self, *args, **kwargs):
 		"""
-		This form is designed to easily set some settings stored in redis.
+		This form is designed to easily modify some settings stored in redis.
 		This is done by:
-			1) Connecting to the redis instance
-			2) Loading a few special dicts (hashes) from redis, which are:
-				- The base settings dict (stored in REDIS_SETTINGS_KEY), which stores key names and values
-				- The field type dict (REDIS_SETTINGS_KEY:types), which stores the data type of each key
-					- Valid types: string, colour, boolean
-				- The help text dict (REDIS_SETTINGS_KEY:help), which stores the help text for each key.
-				- The display text dict (REDIS_SETTINGS_KEY:display), which stores the display label for the key.
-			3) For each key in that dict, check the current value of it:
-				a) If it's a string, create a charfield
-				b) If it's a colour, create a colour field.
-				c) If it's a bool, create a choice field.
-				d) If it's an int, create an integer field.
-				e) Otherwise, don't create one (maybe display a warning?)
-			4) Set the initial value of that field to the value of the key.
+			1) For each form field, lookup the redis key defined for it by the form in `form_fields_to_redis_keys`.
+			2) Grab the values of the keys from redis, and set the fields initial value to that.
+				- Data processing will have to be done depending on the data type of the form field.
+				- If the key is unset, or wrongly typed, use the default value for the field.
+			3) When submitted, update the redis keys with the new information.
+			4) Them, publish "UPDATED" to `update_pubsub_channel`.
+				- This informs any interested clients that one or more keys have been updated.
+		
+		Type settings:
+			- CharField -> String
+			- Integer -> Int
+			- BooleanField -> Int (1 or 0)
+			- CharField(ColourWidget) -> String (eg "rgb(255, 255, 0)")
 		"""
-		super().__init__(*args, skip_layout=True, **kwargs)
-		self.helper.layout = Layout()
+		super().__init__(*args, **kwargs)
 		self.redis_connection = redis.Redis(host=settings.REDIS_HOST, port=6379, decode_responses=True)
-		key_values_dict = self.redis_connection.hgetall(self.REDIS_SETTINGS_KEY)
-		key_types_dict = self.redis_connection.hgetall(f"{self.REDIS_SETTINGS_KEY}:types")
-		key_help_dict = self.redis_connection.hgetall(f"{self.REDIS_SETTINGS_KEY}:help")
-		key_display_dict = self.redis_connection.hgetall(f"{self.REDIS_SETTINGS_KEY}:display")
-		self.setting_fields = []
-		for key, value in key_values_dict.items():
-			key_type = key_types_dict[key]
-			key_help = key_help_dict[key]
-			key_display = key_display_dict[key]
-			match key_type:
-				case "string":
-					self.setting_fields.append(key)
-					self.fields[key] = forms.CharField(
-						label=key_display,
-						help_text=key_help,
-						initial=value,
-						required=True,
-					)
-					self.helper.layout.append(
-						Field(
-							key,
-							wrapper_class="font-monospace"
-						)
-					)
-				case "colour":
-					self.setting_fields.append(key)
-					self.fields[key] = forms.CharField(
-						label=key_display,
-						help_text=key_help,
-						initial=value,
-						required=True,
-						widget=ColorWidget(attrs={"format": "rgb"})
-					)
-					self.helper.layout.append(
-						Field(
-							key,
-							wrapper_class="font-monospace"
-						)
-					)
-				case "boolean":
-					self.setting_fields.append(key)
-					self.fields[key] = forms.BooleanField(
-						label=key_display,
-						help_text=key_help,
-						initial=bool(int(value)),
-						required=False,
-					)
-					self.helper.layout.append(
-						Field(
-							key,
-							wrapper_class="font-monospace"
-						)
-					)
-				case "int":
-					# Currently, we assume min=1, max=100.
-					# This may change in the future.
-					self.setting_fields.append(key)
-					self.fields[key] = forms.IntegerField(
-						label=key_display,
-						help_text=key_help,
-						initial=int(value),
-						required=True,
-						min_value=1,
-						max_value=100,
-					)
-					self.helper.layout.append(
-						Field(
-							key,
-							wrapper_class="font-monospace"
-						)
-					)
-				
-			
+		for field_name, redis_key in self.form_fields_to_redis_keys.items():
+			try:
+				field_initial = self.redis_connection.get(redis_key)
+			except redis.ResponseError:
+				field_initial = None
+			if isinstance(self.fields[field_name], forms.BooleanField):
+				if field_initial is None:
+					field_initial = False
+				else:
+					field_initial = bool(int(field_initial))
+			elif isinstance(self.fields[field_name], forms.IntegerField):
+				if field_initial is None:
+					field_initial = 0
+				else:
+					field_initial = int(field_initial)
+			self.initial[field_name] = field_initial
+	
 	def submit(self, request):
-		"""
-		On submitting:
-			- Update each changed key in redis
-			- If any keys were changed, ping a pubsub channel of the same name
-		"""
 		self.clean()
 		if self.is_valid():
 			change_messages = []
-			for field_name in self.setting_fields:
+			for field_name, redis_key in self.form_fields_to_redis_keys.items():
 				if field_name in self.changed_data:
 					cleaned_field_data = self.cleaned_data[field_name]
 					# If it's a boolean, change to an integer for storage in redis
 					if type(cleaned_field_data) is bool:
 						cleaned_field_data = int(cleaned_field_data)
-					self.redis_connection.hset(self.REDIS_SETTINGS_KEY, field_name, cleaned_field_data)
-					change_messages.append(f"Set key `{field_name}` to value '{cleaned_field_data}'")
+					self.redis_connection.set(redis_key, cleaned_field_data)
+					change_messages.append(f"Set key `{redis_key}` to value '{cleaned_field_data}'")
 			if change_messages:
 				messages.success(request, "\n".join(change_messages))
-				self.redis_connection.publish(self.REDIS_SETTINGS_KEY, "updated")
-
-
-class DiscordSettingsForm(BaseRedisSettingsForm):
-	form_name = "Discord Bot Settings"
-	form_short_description = "Change various settings related to the Discord bot."
-	form_long_description = (
-		"Change various settings for the Discord bot, such as what channel notifications are sent to. "
-		"You shouldn't need to adjust these settings too often."
-	)
-	form_allowed_ranks = [
-		RankChoices.SUPERUSER,
-	]
-	
-	REDIS_SETTINGS_KEY = "lich:settings"
+				self.redis_connection.publish(self.update_pubsub_channel, "UPDATED")
 
 
 class ClockSettingsForm(BaseRedisSettingsForm):
-	form_name = "Clock Settings"
-	form_short_description = "Change the appearance of the clock."
-	form_long_description = (
-		"Change the brightness and colour of the clock, and also whether the seconds indicator flashes."
-	)
+	form_name = "Change Clock Settings"
+	form_short_description = "Change the appearance of the LED clock in Unigames."
+	
 	form_allowed_ranks = [
 		RankChoices.SUPERUSER,
 	]
 	
-	REDIS_SETTINGS_KEY = "clock:settings"
-	
-
-class InitialiseRedisSettingsForm(ControlPanelForm):
-	form_name = "Initialise Redis Settings"
-	form_short_description = "Initialises and RESETS Redis settings to their default values."
-	form_long_description = (
-		"RESETS all Redis setting data and initialises Redis data stores. Do not use unless you know what you're doing."
+	clock_brightness = forms.IntegerField(
+		min_value=1,
+		max_value=100,
+		required=True,
+		label="Clock Brightness",
+		help_text="How bright the clock is. 1 is the lowest, 100 is the highest.",
 	)
-	form_allowed_ranks = [
-		RankChoices.SUPERUSER,
-	]
+	clock_colour = forms.CharField(
+		required=True,
+		widget=ColorWidget(attrs={"format": "rgb"}),
+		label="Clock Colour",
+		help_text="The colour of the clock. Please don't set this to complete black."
+	)
+	clock_alternate_seconds = forms.BooleanField(
+		required=False,
+		label="Flash Seconds Indicator",
+		help_text="Whether the clock will alternate each second to show the passage of time."
+	)
+	
+	form_fields_to_redis_keys = {
+		"clock_brightness": "clock:brightness",
+		"clock_colour": "clock:colour",
+		"clock_alternate_seconds": "clock:seconds",
+	}
+	update_pubsub_channel = "clock:updates"
 	
 	def get_layout(self):
-		return Layout()
-	
-	def submit(self, request):
-		if self.is_valid():
-			"""
-			lich:settings
-				- Nothing at the moment
-			clock:settings
-				- brightness (int)
-				- colour (colour)
-				- seconds_flashing (bool)
-			"""
-			settings_to_initialise = {
-				"clock:settings": [
-					(
-						"brightness",
-						"Clock Brightness",
-						"The brightness of the clock, from 1-100",
-						"int",
-						"50",
-					),
-					(
-						"colour",
-						"Clock Colour",
-						"The colour of the clock.",
-						"colour",
-						"rgb(255, 255, 0)",
-					),
-					(
-						"seconds_flashing",
-						"Seconds Indicator",
-						"Whether the seconds indicator should flash or not.",
-						"boolean",
-						"1",
-					)
-				]
-			}
-			redis_connection = redis.Redis(host=settings.REDIS_HOST, port=6379, decode_responses=True)
-			for settings_key, key_data in settings_to_initialise.items():
-				types_key = f"{settings_key}:types"
-				help_key = f"{settings_key}:help"
-				display_key = f"{settings_key}:display"
-				redis_connection.delete(settings_key, types_key, help_key, display_key)
-				for key_name, key_display, key_help, key_type, key_value in key_data:
-					# Set value in main hash
-					redis_connection.hset(settings_key, key_name, key_value)
-					# Set type
-					redis_connection.hset(types_key, key_name, key_type)
-					# Set help
-					redis_connection.hset(help_key, key_name, key_help)
-					# Set display
-					redis_connection.hset(display_key, key_name, key_display)
-			messages.success(request, f"Initialised {settings_to_initialise.keys()}")
-	
+		return Layout(
+			"clock_brightness",
+			"clock_colour",
+			"clock_alternate_seconds",
+		)
+
 
 FORM_CLASSES = {}
 for form_class in (
@@ -950,6 +837,5 @@ for form_class in (
 	CommitteeTransferForm,
 	GetMembershipInfoForm,
 	ClockSettingsForm,
-	InitialiseRedisSettingsForm,
 ):
 	FORM_CLASSES[slugify(form_class.form_name)] = form_class
