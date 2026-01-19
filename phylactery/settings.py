@@ -178,6 +178,10 @@ EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 # https://docs.djangoproject.com/en/dev/ref/settings/#internal-ips
 INTERNAL_IPS = ["127.0.0.1"]
 
+DEBUG_TOOLBAR_CONFIG = {
+	"SHOW_TOOLBAR_CALLBACK": "debug_toolbar.middleware.show_toolbar_with_docker"
+}
+
 # https://docs.djangoproject.com/en/dev/topics/auth/customizing/#substituting-a-custom-user-model
 AUTH_USER_MODEL = "accounts.UnigamesUser"
 
