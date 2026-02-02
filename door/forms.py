@@ -18,6 +18,16 @@ class OpenCloseDoorForm(forms.Form):
 		)
 
 
+class LetMeInConfirmationForm(forms.Form):
+	"""
+	Displayed only if the system thinks Unigames is closed or Cameron Hall is already open.
+	"""
+	confirmation = forms.BooleanField(
+		required=True,
+		label="I confirm I have read the above"
+	)
+
+
 class LetMeInForm(forms.Form):
 	entrance = forms.ChoiceField(
 		choices={
