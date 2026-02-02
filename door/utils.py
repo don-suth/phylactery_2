@@ -20,6 +20,25 @@ def get_door_status():
 	return door_status, door_datetime, door_display_name
 
 
+def is_cameron_hall_open():
+	"""
+	Gets and returns whether the doors to Cameron Hall are likely open.
+	Current schedule:
+		Weekdays: 8AM to 6PM
+		Weekends: Closed
+	"""
+	today = timezone.localtime()
+	if today.weekday() <= 5:
+		# If today is Saturday or Sunday:
+		return False
+	elif 8 <= today.time().hour <= 18:
+		# If we're between 8AM and 6PM:
+		return True
+	else:
+		# Otherwise, we're closed.
+		return False
+	
+
 def redis_open_door(member_id, display_name):
 	"""
 	Updates Redis to open the Door.

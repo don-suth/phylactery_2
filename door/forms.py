@@ -16,3 +16,28 @@ class OpenCloseDoorForm(forms.Form):
 		self.helper.layout = Layout(
 			"confirmation",
 		)
+
+
+class LetMeInForm(forms.Form):
+	entrance = forms.ChoiceField(
+		choices={
+			"tav": "Tav Side",
+			"guild": "Guild Village Side"
+		},
+		label="Which side are you entering from",
+		label_suffix="?",
+		required=True,
+	)
+	confirmation = forms.BooleanField(
+		required=True,
+		label="I confirm that I have read the above"
+	)
+	
+	def __init__(self, *args, **kwargs):
+		super().__init__(*args, **kwargs)
+		self.helper = FormHelper()
+		self.helper.form_tag = False
+		self.helper.layout = Layout(
+			"entrance",
+			"confirmation"
+		)

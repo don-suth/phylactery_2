@@ -1,11 +1,12 @@
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
 from django.utils.decorators import method_decorator
 from django.views.generic import TemplateView, FormView
 
 from members.decorators import gatekeeper_required
-from door.forms import OpenCloseDoorForm
-from door.utils import get_door_status, redis_open_door, redis_close_door
+from door.forms import OpenCloseDoorForm, LetMeInForm
+from door.utils import get_door_status, redis_open_door, redis_close_door, is_cameron_hall_open
 
 
 class DoorStatusView(TemplateView):
@@ -39,3 +40,16 @@ class CloseDoorFormView(FormView):
 		redis_close_door(member.pk, member.short_name)
 		messages.success(self.request, "You have closed Unigames!")
 		return redirect("door:status")
+
+
+@method_decorator(login_required, name="dispatch")
+class LetMeInView(FormView):
+	form_class = LetMeInForm
+	template_name = "door/letmein_form.html"
+	
+	def get_context_data(self, **kwargs):
+		# Add the door status and whether Cameron Hall is (likely) locked to the context.
+		context = super().get_context_data(**kwargs)
+		context["door_status"], context["door_datetime"], context["door_display_name"] = get_door_status()
+		context["cameron_hall_open"] = is_cameron_hall_open()
+		return context
