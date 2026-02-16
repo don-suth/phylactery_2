@@ -2,6 +2,9 @@
 
 {% block title %}Profile for {{ member.short_name }}{% endblock %}
 
+{% load account %}
+{% load socialaccount %}
+
 {% block content %}
 	<div class="container" style="max-width: 576px;">
 		<h3>{{ member.long_name }}</h3>
@@ -85,8 +88,14 @@
 			<div class="col mb-3">
 				<div class="card h-100">
 					<div class="card-body">
-						<h4 class="card-title">Discord</h4>
-						<p class="card-text">{{ member.short_name }} does not have a linked Discord account.</p>
+						<h4 class="card-title">Linked Accounts</h4>
+						{% get_social_accounts member.user as accounts %}
+						{% for provider in accounts %}
+							<h5 class="card-title"><i class="bi-{{ provider }}"></i> {{ provider|title }}</h5>
+							<p class="card-text"><i class="text-success bi-check-circle-fill"></i> {{ member.short_name }} has linked a {{ provider|title }} account.</p>
+						{% empty %}
+							<p class="card-text">{{ member.short_name }} has not linked any accounts.</p>
+						{% endfor %}
 					</div>
 				</div>
 			</div>
