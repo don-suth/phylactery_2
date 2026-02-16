@@ -25,6 +25,7 @@ def check_discord_account_links_task():
 			member = social_account.user.member
 			if member.is_valid_member():
 				r.hset("lich:linked_accounts", social_account.uid, member.short_name)
+				r.hset("lich:linked_accounts:pk_lookup", social_account.uid, member.pk)
 				if member.is_gatekeeper() or member.is_potential_superuser():
 					# Potential Superusers get added as well,
 					# since they will rarely have superuser status when this is run.
@@ -33,6 +34,7 @@ def check_discord_account_links_task():
 			else:
 				r.hdel("lich:linked_accounts", social_account.uid)
 				r.hdel("lich:linked_accounts:gatekeepers", social_account.uid)
+				r.hdel("lich:linked_accounts:pk_lookup", social_account.uid)
 				removed += 1
 	logger.info(f"Updated Discord permissions for {updated} members. Removed permissions for {removed} members.")
 	
