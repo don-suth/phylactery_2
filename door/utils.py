@@ -20,7 +20,7 @@ def get_door_status():
 	return door_status, door_datetime, door_display_name
 
 
-def is_cameron_hall_open():
+def is_cameron_hall_open(*args, **kwargs):
 	"""
 	Gets and returns whether the doors to Cameron Hall are likely open.
 	Current schedule:
