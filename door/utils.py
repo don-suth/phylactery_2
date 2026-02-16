@@ -55,6 +55,10 @@ def redis_check_cooldown(member_pk):
 		return False
 
 
+def publish_letmein_request(name, entrance):
+	pass
+
+
 def redis_open_door(member_id, display_name):
 	"""
 	Updates Redis to open the Door.
