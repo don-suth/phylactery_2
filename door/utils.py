@@ -37,7 +37,23 @@ def is_cameron_hall_open():
 	else:
 		# Otherwise, we're closed.
 		return False
-	
+
+
+def redis_check_cooldown(member_pk):
+	"""
+	Checks a member_pk based cooldown for the letmein system.
+	Returns True if they aren't violating cooldown (30 seconds).
+	Returns False if they are violating cooldown.
+	"""
+	redis_connection = redis.Redis(host=settings.REDIS_HOST, port=6379, decode_responses=True)
+	current_timestamp = redis_connection.time()[0]
+	member_cooldown = redis_connection.hget("letmein:cooldowns", str(member_pk))
+	if member_cooldown is None or current_timestamp >= int(member_cooldown):
+		redis_connection.hset("letmein:cooldowns", str(member_pk), current_timestamp + 30)
+		return True
+	else:
+		return False
+
 
 def redis_open_door(member_id, display_name):
 	"""
@@ -72,6 +88,7 @@ def redis_open_door(member_id, display_name):
 	})
 	pipe.publish("door:updates", "OPEN")
 	pipe.execute()
+
 
 def redis_close_door(member_id, display_name):
 	"""
