@@ -62,9 +62,11 @@ class MembershipStatusFilter(admin.SimpleListFilter):
 	def queryset(self, request, queryset):
 		match self.value():
 			case "financial":
-				return queryset.filter(memberships__expired=False)
+				return queryset.filter(memberships__expired=False).distinct()
 			case "non_financial":
-				return queryset.exclude(memberships__expired=False)
+				return queryset.exclude(memberships__expired=False).distinct()
+			case _:
+				return queryset
 
 
 class MemberAdmin(admin.ModelAdmin):
@@ -72,6 +74,8 @@ class MemberAdmin(admin.ModelAdmin):
 	search_fields = ["short_name", "long_name"]
 	list_filter = (MemberGatekeeperFilter, MembershipStatusFilter)
 	inlines = [RankInline, MembershipInline, MailingListInline]
+	list_per_page = 200
+	list_max_show_all = 1000
 	
 	@admin.display(description="Fresher?", boolean=True)
 	def is_fresher_bool(self, obj):
