@@ -24,7 +24,7 @@ class LetMeInWizard(SessionWizardView):
 	condition_dict = {
 		"confirm": is_cameron_hall_open
 	}
-	template_name = "door/letmein_wizard.html"
+	template_name = "door/letmein_form.html"
 	
 	def done(self, form_list, **kwargs):
 		"""
