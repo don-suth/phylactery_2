@@ -45,7 +45,7 @@ class CloseDoorFormView(FormView):
 @method_decorator(login_required, name="dispatch")
 class LetMeInView(FormView):
 	form_class = LetMeInForm
-	template_name = "door/letmein_form.html"
+	template_name = "door/letmein_wizard.html"
 	
 	def get_context_data(self, **kwargs):
 		# Add the door status and whether Cameron Hall is (likely) locked to the context.
