@@ -56,7 +56,26 @@ def redis_check_cooldown(member_pk):
 
 
 def publish_letmein_request(name, entrance):
-	pass
+	"""
+	Updates Redis to open the Door.
+	This involves:
+	1) Adding an entry to the Redis stream with:
+		- timestamp
+		- name
+		- entrance
+		- source (phylactery/lich)
+	"""
+	redis_connection = redis.Redis(host=settings.REDIS_HOST, port=6379, decode_responses=True)
+	pipe = redis_connection.pipeline()
+	timestamp = timezone.now().timestamp()
+	pipe.xadd("letmein:stream", {
+		"timestamp": timestamp,
+		"name": name,
+		"entrance": entrance,
+		"source": "phylactery"
+	})
+	pipe.publish("letmein:updates", "UPDATED")
+	pipe.execute()
 
 
 def redis_open_door(member_id, display_name):
