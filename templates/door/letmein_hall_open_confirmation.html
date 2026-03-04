@@ -1,0 +1,57 @@
+{% extends "_base.html" %}
+{% load crispy_forms_tags %}
+{% load crispy_forms_filters %}
+
+{% block title %}Let Me In!{% endblock %}
+
+{% block content %}
+	<form action="" method="POST">
+		{% csrf_token %}
+		{{ wizard.management_form }}
+		<div class="card w-100 border-danger">
+			<h2 class="card-header text-center">Are you sure?</h2>
+			<div class="card-body">
+				<p class="card-text">
+					The website is currently under the impression that the Cameron Hall door is open.
+				</p>
+				<p class="card-text">
+					Please keep in mind that the website doesn't know about public holidays, University holidays,
+					and other circumstances that may cause Cameron Hall to be closed unexpectedly.
+				</p>
+				{% crispy wizard.form %}
+			</div>
+		</div>
+		<div class="d-flex flex-row justify-content-between">
+			<div class="p-2">
+				{% if wizard.steps.prev %}
+					<button name="wizard_goto_step"
+							type="submit"
+							value="{{ wizard.steps.prev }}"
+							formnovalidate="formnovalidate"
+							class="btn btn-secondary">
+						<i class="bi-arrow-left"></i> Back
+					</button>
+				{% else %}
+					<button type="button"
+							class="btn btn-secondary"
+							disabled>
+						<i class="bi-arrow-left"></i> Back
+					</button>
+				{% endif %}
+			</div>
+			<div class="p-2">
+				{% if wizard.steps.next %}
+					<button type="submit"
+							class="btn btn-primary">
+						Next <i class="bi-arrow-right"></i>
+					</button>
+				{% else %}
+					<button type="submit"
+							class="btn btn-success">
+						Submit <i class="bi-check2"></i>
+					</button>
+				{% endif %}
+			</div>
+		</div>
+	</form>
+{% endblock %}
