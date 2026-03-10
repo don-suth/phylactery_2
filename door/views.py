@@ -6,7 +6,10 @@ from django.views.generic import TemplateView, FormView
 
 from members.decorators import gatekeeper_required
 from door.forms import OpenCloseDoorForm, LetMeInForm
-from door.utils import get_door_status, redis_open_door, redis_close_door, is_cameron_hall_open
+from door.utils import (
+	get_door_status, redis_open_door, redis_close_door, is_cameron_hall_open, redis_check_cooldown,
+	publish_letmein_request
+)
 
 
 class DoorStatusView(TemplateView):
@@ -53,3 +56,14 @@ class LetMeInView(FormView):
 		context["door_status"], context["door_datetime"], context["door_display_name"] = get_door_status()
 		context["cameron_hall_open"] = is_cameron_hall_open()
 		return context
+	
+	def form_valid(self, form):
+		member = self.request.unigames_member
+		cooldown_check = redis_check_cooldown(member.pk)
+		if cooldown_check:
+			publish_letmein_request(member.short_name, form.cleaned_data["entrance"])
+			messages.success(self.request, "Your message has been sent to the clubroom!")
+			return redirect("door:status")
+		else:
+			messages.error(self.request, "You are currently on cooldown - please wait a little longer before trying again.")
+			return redirect("door:status")
