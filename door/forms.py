@@ -22,8 +22,8 @@ class OpenCloseDoorForm(forms.Form):
 class LetMeInForm(forms.Form):
 	entrance = forms.ChoiceField(
 		choices={
-			"tav": "Tav Side",
-			"guild": "Guild Village Side"
+			"Tav": "Tav Side",
+			"Guild": "Guild Village Side"
 		},
 		label="Which side are you entering from",
 		label_suffix="?",
