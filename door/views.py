@@ -4,7 +4,7 @@ from django.shortcuts import redirect
 from django.utils.decorators import method_decorator
 from django.views.generic import TemplateView, FormView
 
-from members.decorators import gatekeeper_required
+from members.decorators import gatekeeper_required, superuser_required
 from door.forms import OpenCloseDoorForm, LetMeInForm
 from door.utils import (
 	get_door_status, redis_open_door, redis_close_door, is_cameron_hall_open, redis_check_cooldown,
@@ -45,7 +45,7 @@ class CloseDoorFormView(FormView):
 		return redirect("door:status")
 
 
-@method_decorator(login_required, name="dispatch")
+@method_decorator(superuser_required(), name="dispatch")
 class LetMeInView(FormView):
 	form_class = LetMeInForm
 	template_name = "door/letmein_form.html"
