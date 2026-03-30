@@ -64,18 +64,17 @@ def publish_letmein_request(name, entrance):
 		- name
 		- entrance
 		- source (phylactery/lich)
+	2) Publish that stream_id to the letmein:updates pubsub channel so telepathy can detect it
 	"""
 	redis_connection = redis.Redis(host=settings.REDIS_HOST, port=6379, decode_responses=True)
-	pipe = redis_connection.pipeline()
 	timestamp = timezone.now().timestamp()
-	pipe.xadd("letmein:stream", {
+	stream_id = redis_connection.xadd("letmein:stream", {
 		"timestamp": timestamp,
 		"name": name,
 		"entrance": entrance,
 		"source": "phylactery"
 	})
-	pipe.publish("letmein:updates", "UPDATED")
-	pipe.execute()
+	redis_connection.publish("letmein:updates", str(stream_id))
 
 
 def redis_open_door(member_id, display_name):
