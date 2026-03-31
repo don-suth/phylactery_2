@@ -790,7 +790,7 @@ class ClockSettingsForm(BaseRedisSettingsForm):
 	form_short_description = "Change the appearance of the LED clock in Unigames."
 	
 	form_allowed_ranks = [
-		RankChoices.SUPERUSER,
+		RankChoices.GATEKEEPER,
 	]
 	
 	clock_brightness = forms.IntegerField(

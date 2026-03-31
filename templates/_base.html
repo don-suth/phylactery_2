@@ -109,6 +109,10 @@
 										<li><a class="dropdown-item" href="{% url 'admin:index' %}">Admin Site</a></li>
 										<li><a class="dropdown-item" href="{% url "control_panel:list" %}">Control Panel</a></li>
 										<li><hr class="dropdown-divider"></li>
+									{% else %}
+										<li><h6 class="dropdown-header">Control Panel</h6></li>
+										<li><a class="dropdown-item" href="{% url "control_panel:list" %}">Control Panel</a></li>
+										<li><hr class="dropdown-divider"></li>
 									{% endif %}
 									<li><h6 class="dropdown-header">Door</h6></li>
 									<li><a class="dropdown-item" href="{% url 'door:status' %}">Open/Close Room</a></li>
