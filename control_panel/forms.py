@@ -791,6 +791,7 @@ class ClockSettingsForm(BaseRedisSettingsForm):
 	
 	form_allowed_ranks = [
 		RankChoices.GATEKEEPER,
+		RankChoices.SUPERUSER,
 	]
 	
 	clock_brightness = forms.IntegerField(
