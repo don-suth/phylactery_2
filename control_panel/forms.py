@@ -827,6 +827,31 @@ class ClockSettingsForm(BaseRedisSettingsForm):
 		)
 
 
+class EnableDisableFeaturesForm(BaseRedisSettingsForm):
+	form_name = "Enable/Disable Features"
+	form_short_description = "Toggle certain features being available."
+	
+	form_allowed_ranks = [
+		RankChoices.SUPERUSER,
+	]
+	
+	enable_letmein = forms.BooleanField(
+		required=False,
+		label="Enable the LetMeIn system",
+		help_text="Disabling this will prevent anyone from sending LetMeIn requests to the clubroom."
+	)
+	
+	form_fields_to_redis_keys = {
+		"enable_letmein": "features:letmein",
+	}
+	update_pubsub_channel = "features:updates"
+	
+	def get_layout(self):
+		return Layout(
+			"enable_letmein",
+		)
+
+
 FORM_CLASSES = {}
 for form_class in (
 	GatekeeperWebkeeperPurgeForm,
@@ -837,5 +862,6 @@ for form_class in (
 	CommitteeTransferForm,
 	GetMembershipInfoForm,
 	ClockSettingsForm,
+	EnableDisableFeaturesForm,
 ):
 	FORM_CLASSES[slugify(form_class.form_name)] = form_class
