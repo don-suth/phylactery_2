@@ -1,0 +1,13 @@
+{% extends "_base.html" %}
+
+{% block title %}Feature Disabled{% endblock %}
+
+{% block content %}
+	<h2>
+		Feature Disabled
+	</h2>
+	<p>
+	The feature you were trying to access is currently disabled for some reason. Sorry! <br>
+	There's probably a good reason for this, but if you think it might be a mistake, you can <a href="{% url 'contact' %}">contact us</a>.
+	</p>
+{% endblock %}

@@ -20,6 +20,63 @@ def get_door_status():
 	return door_status, door_datetime, door_display_name
 
 
+def is_cameron_hall_open(*args, **kwargs):
+	"""
+	Gets and returns whether the doors to Cameron Hall are likely open.
+	Current schedule:
+		Weekdays: 8AM to 6PM
+		Weekends: Closed
+	"""
+	today = timezone.localtime()
+	if today.weekday() <= 5:
+		# If today is Saturday or Sunday:
+		return False
+	elif 8 <= today.time().hour <= 18:
+		# If we're between 8AM and 6PM:
+		return True
+	else:
+		# Otherwise, we're closed.
+		return False
+
+
+def redis_check_cooldown(member_pk):
+	"""
+	Checks a member_pk based cooldown for the letmein system.
+	Returns True if they aren't violating cooldown (30 seconds).
+	Returns False if they are violating cooldown.
+	"""
+	redis_connection = redis.Redis(host=settings.REDIS_HOST, port=6379, decode_responses=True)
+	current_timestamp = redis_connection.time()[0]
+	member_cooldown = redis_connection.hget("letmein:cooldowns", str(member_pk))
+	if member_cooldown is None or current_timestamp >= int(member_cooldown):
+		redis_connection.hset("letmein:cooldowns", str(member_pk), current_timestamp + 30)
+		return True
+	else:
+		return False
+
+
+def publish_letmein_request(name, entrance):
+	"""
+	Updates Redis to open the Door.
+	This involves:
+	1) Adding an entry to the Redis stream with:
+		- timestamp
+		- name
+		- entrance
+		- source (phylactery/lich)
+	2) Publish that stream_id to the letmein:updates pubsub channel so telepathy can detect it
+	"""
+	redis_connection = redis.Redis(host=settings.REDIS_HOST, port=6379, decode_responses=True)
+	timestamp = timezone.now().timestamp()
+	stream_id = redis_connection.xadd("letmein:stream", {
+		"timestamp": timestamp,
+		"name": name,
+		"entrance": entrance,
+		"source": "phylactery"
+	})
+	redis_connection.publish("letmein:updates", str(stream_id))
+
+
 def redis_open_door(member_id, display_name):
 	"""
 	Updates Redis to open the Door.
@@ -53,6 +110,7 @@ def redis_open_door(member_id, display_name):
 	})
 	pipe.publish("door:updates", "OPEN")
 	pipe.execute()
+
 
 def redis_close_door(member_id, display_name):
 	"""

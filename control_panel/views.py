@@ -4,10 +4,10 @@ from django.shortcuts import reverse
 from django.views.generic import TemplateView, FormView
 from django.utils.decorators import method_decorator
 from control_panel.forms import FORM_CLASSES
-from members.decorators import staff_required
+from members.decorators import gatekeeper_required
 
 
-@method_decorator(staff_required, name="dispatch")
+@method_decorator(gatekeeper_required, name="dispatch")
 class ControlPanelListView(TemplateView):
 	"""
 	This view renders the list of control panel forms that
@@ -39,7 +39,7 @@ class ControlPanelListView(TemplateView):
 		return context
 
 
-@method_decorator(staff_required, name="dispatch")
+@method_decorator(gatekeeper_required, name="dispatch")
 class ControlPanelFormView(FormView):
 	"""
 	This view renders the requested form.

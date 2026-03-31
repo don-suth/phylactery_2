@@ -1,0 +1,41 @@
+{% extends "_base.html" %}
+{% load crispy_forms_tags %}
+{% load crispy_forms_filters %}
+
+{% block title %}Let Me In!{% endblock %}
+
+{% block content %}
+	<form action="" method="POST">
+		{% csrf_token %}
+		<div class="card w-100">
+			<h2 class="card-header text-center">Let Me In!</h2>
+			<div class="card-body">
+				<p class="card-text">
+					The doors to Cameron Hall (the building that Unigames resides in) become locked outside of University Hours.
+					<br>
+					A student card is required to access Cameron Hall during this time.
+				</p>
+				<p class="card-text">
+					This form allows you to send a message to the Unigames clubroom, requesting someone to come and let you in.
+				</p>
+				<p class="card-text">
+					Please don't do this unless you are physically waiting outside an entrance to Cameron Hall.
+				</p>
+				<p class="card-text">Please note:</p>
+				<ul>
+					<li>All usages of this system will be logged.</li>
+					<li>Abuse of this system (ie. requesting access when you aren't actually there as a joke) can result in disabling your access to this system.</li>
+					<li>Submitting this form does not guarantee that access will be granted.</li>
+					<li>Please stay at the entrance you've requested access to for at least 2 minutes before leaving.</li>
+				</ul>
+				{% crispy form %}
+			</div>
+		</div>
+		<div class="d-flex flex-row justify-content-between">
+			<button type="submit"
+							class="btn btn-success">
+						Submit <i class="bi-check2"></i>
+			</button>
+		</div>
+	</form>
+{% endblock %}
