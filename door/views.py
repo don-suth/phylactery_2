@@ -45,7 +45,7 @@ class CloseDoorFormView(FormView):
 		return redirect("door:status")
 
 
-@method_decorator(superuser_required(), name="dispatch")
+@method_decorator(superuser_required, name="dispatch")
 class LetMeInView(FormView):
 	form_class = LetMeInForm
 	template_name = "door/letmein_form.html"
