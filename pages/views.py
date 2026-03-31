@@ -73,3 +73,7 @@ class CommitteeView(TemplateView):
 		context = super().get_context_data(**kwargs)
 		context["committee"] = Rank.objects.get_committee()
 		return context
+
+
+class FeatureDisabledView(TemplateView):
+	template_name = "pages/feature_disabled.html"

@@ -17,7 +17,7 @@ def redis_key_required(redis_key=""):
 			if str(redis_connection.get(redis_key)) == "1":
 				return view_func(request, *args, **kwargs)
 			else:
-				return redirect("home")
+				return redirect("disabled")
 		
 		return wraps(view_func)(_view_wrap)
 	
